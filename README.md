@@ -1,6 +1,16 @@
 # JABU SAMS (Smart Access Management System)
 
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-live-brightgreen)](https://Olajerry11.github.io/Jabu---sams/)
+
 A lightweight **student access management web app** built with **plain HTML/CSS/JavaScript**, **Firebase Firestore**, and **QR code scanning**.
+
+## 📍 Live Demo (GitHub Pages)
+
+This project is configured to deploy to **GitHub Pages** via GitHub Actions.
+
+➡️ View it live at: **https://Olajerry11.github.io/Jabu---sams/**
+
+> Note: The first deploy may take a couple minutes after pushing changes.
 
 It provides:
 
