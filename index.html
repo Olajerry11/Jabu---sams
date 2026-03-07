@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital ID | JABU SAMS</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  
+  <div class="flip-container" onclick="toggleFlip()">
+    <div class="flip-inner" id="id-card">
+      
+      <div class="flip-front id-card">
+        <div class="header">
+          <img src="jabu-logo.png" alt="JABU Logo" class="school-logo">
+          <h2>JABU SAMS</h2>
+          <p>Smart Access Management</p>
+        </div>
+        
+        <div class="profile-section">
+          <div class="photo-placeholder">👤</div>
+          <h3 class="name">Student Name</h3>
+          <p class="matric">Matric: JABU/CSC/26/001</p>
+          <div class="status active">Status: ACTIVE</div>
+        </div>
+        
+        <div class="qr-section">
+          <div class="qr-box">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=JABU-TOTP-SECURE-KEY" alt="Access QR Code">
+          </div>
+          <p class="timer">Tap card to flip over ↺</p>
+        </div>
+      </div>
+
+      <div class="flip-back id-card">
+        <div class="header">
+          <h2>Student Details</h2>
+        </div>
+        <div class="back-details">
+          <h3>Department of Computer Science</h3>
+          <p>College of Natural Sciences</p>
+          
+          <hr class="divider">
+          
+          <h4 class="emergency-title">Emergency Contact</h4>
+          <p>Mr/Mrs. Guardian Name</p>
+          <p style="font-weight: bold; color: #003366;">+234 801 234 5678</p>
+          
+          <hr class="divider">
+          
+          <p class="terms">This card is the property of Joseph Ayo Babalola University. If found, please return to the Security Division.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 20px;">
+    <a href="login.html" style="color: #003366; font-weight: bold; text-decoration: none;">🔒 Staff Login</a>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

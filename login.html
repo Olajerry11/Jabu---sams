@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Login | JABU SAMS</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="login-body">
+
+  <div class="login-container">
+    <div class="header">
+      <h2>JABU Security</h2>
+      <p>Authorized Personnel Only</p>
+    </div>
+    
+    <div class="login-box">
+      <p>Enter 4-Digit Security PIN</p>
+      
+      <input type="password" id="pin-input" maxlength="4" inputmode="numeric" placeholder="••••">
+      
+      <p id="error-message" class="error-text hidden">INVALID PIN. ACCESS DENIED.</p>
+      
+      <button class="btn-login" onclick="verifyPin()">Authenticate</button>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <a href="index.html" style="color: #003366; font-weight: bold; text-decoration: none;">⬅️ Return to Student ID</a>
+    </div>
+  </div>
+
+  <script src="login.js"></script>
+</body>
+</html>

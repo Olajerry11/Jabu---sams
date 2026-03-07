@@ -1,0 +1,21 @@
+{
+  "name": "JABU Smart Access",
+  "short_name": "JABU SAMS",
+  "description": "University Gate Security System",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#eef2f5",
+  "theme_color": "#003366",
+  "icons": [
+    {
+      "src": "https://api.qrserver.com/v1/create-qr-code/?size=192x192&data=JABU",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=JABU",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
