@@ -5,12 +5,14 @@ import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserPlus, Mail, KeyRound, User, AlertCircle, Building2, BookOpen, ArrowRight, Camera } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 type Role = 'student' | 'teaching_staff' | 'non_teaching_staff' | 'camp_guest' | 'food_vendor' | 'security';
 type Level = '100L' | '200L' | '300L' | '400L' | '500L' | 'Postgraduate' | '';
 
 export default function Register() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
@@ -141,7 +143,8 @@ export default function Register() {
       // 5. Save to Firestore
       await setDoc(doc(db, 'users', user.uid), profileData);
       
-      // 6. Redirect to home (ID Card)
+      // 6. Redirect to home (ID Card) with success toast
+      showToast(`Welcome to JABU SAMS, ${name}! Your digital identity is ready.`, 'success');
       navigate('/');
       
     } catch (err: any) {

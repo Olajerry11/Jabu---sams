@@ -40,6 +40,7 @@ const seedData = async () => {
       role: 'student',
       name: 'John Doe',
       matric: 'JABU/ACC/25/089',
+      photoUrl: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=400&h=400&fit=crop',
       status: 'active'
     }
   ];
@@ -58,6 +59,7 @@ const seedData = async () => {
         name: u.name,
         status: u.status,
         ...(u.matric && { matric: u.matric }),
+        ...(u.photoUrl && { photoUrl: u.photoUrl }),
         createdAt: new Date().toISOString()
       });
       

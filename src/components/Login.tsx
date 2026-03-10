@@ -3,6 +3,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import { KeyRound, Mail, AlertCircle, ArrowRight } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -11,6 +12,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   useEffect(() => {
     setMounted(true);
@@ -22,7 +24,8 @@ export default function Login() {
     setError('');
     
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      showToast(`Welcome back, ${userCredential.user.email}!`, 'success');
       navigate('/');
     } catch (err: any) {
       setError(err.message || 'Invalid credentials');

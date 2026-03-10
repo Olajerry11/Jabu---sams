@@ -11,6 +11,7 @@ interface UserData {
   role: 'student' | 'teaching_staff' | 'non_teaching_staff' | 'camp_guest' | 'food_vendor' | 'admin' | 'security';
   name?: string;
   matric?: string;
+  photoUrl?: string;
   status: 'active' | 'suspended' | 'expired';
 }
 

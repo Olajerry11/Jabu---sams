@@ -18,8 +18,9 @@ service cloud.firestore {
       // Security/Admins can read any profile
       allow read: if request.auth != null && (request.auth.uid == userId || isStaff());
       
-      // Only admins can create/update users
-      allow write: if isAdmin();
+      // Admins can create/update ANY user.
+      // Individuals can create/update THEIR OWN profile during registration/settings.
+      allow write: if isAdmin() || (request.auth != null && request.auth.uid == userId);
     }
 
     match /scans/{scanId} {
