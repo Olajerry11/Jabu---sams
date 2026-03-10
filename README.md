@@ -1,116 +1,73 @@
-# JABU SAMS (Smart Access Management System)
+# React + TypeScript + Vite
 
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-live-brightgreen)](https://Olajerry11.github.io/Jabu---sams/)
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-A lightweight **student access management web app** built with **plain HTML/CSS/JavaScript**, **Firebase Firestore**, and **QR code scanning**.
+Currently, two official plugins are available:
 
-## 📍 Live Demo (GitHub Pages)
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-This project is configured to deploy to **GitHub Pages** via GitHub Actions.
+## React Compiler
 
-➡️ View it live at: **https://Olajerry11.github.io/Jabu---sams/**
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-> Note: The first deploy may take a couple minutes after pushing changes.
+## Expanding the ESLint configuration
 
-It provides:
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-- ✅ **Student ID Card** with live status updates (Active / Suspended)
-- ✅ **QR code generation** for student IDs
-- ✅ **Gate Scanner** that verifies students from the cloud database (camera + manual entry)
-- ✅ **Admin Panel** to view students, suspend/reactivate access, and seed sample data
-- ✅ **Offline caching** using a simple Service Worker (`sw.js`)
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
----
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-## 🚀 How It Works
-
-| Page | Purpose |
-|------|---------|
-| `index.html` | Student ID card that displays student info + live status from Firestore |
-| `scanner.html` | Gate scanner that reads QR codes and checks Firestore for access status |
-| `admin.html` | Admin dashboard for viewing all students and toggling access |
-| `login.html` | Simple PIN-based login gate (PIN is hardcoded to `1234`) |
-
-All Firestore access is handled via `firebase` (compat) libraries and the `students` collection.
-
----
-
-## 🛠️ Setup (Run Locally)
-
-1. **Clone the repo** (if not already):
-
-   ```bash
-   git clone https://github.com/Olajerry11/Jabu---sams.git
-   cd "Jabu---sams"
-   ```
-
-2. **Run a local web server** (recommended):
-
-   - Using Node.js + `serve`:
-     ```bash
-     npx serve .
-     ```
-
-   - Or using Python:
-     ```bash
-     python -m http.server 8000
-     ```
-
-3. **Open in browser**:
-   - Student ID: `http://localhost:5000/index.html` (or port your server uses)
-   - Scanner: `scanner.html`
-   - Admin: `admin.html`
-
----
-
-## 🔐 Admin Access
-
-The admin panel is not protected by authentication in this demo. It is accessible directly via `admin.html`.
-
-### Default PIN (for scanner gate login)
-
-- PIN: `1234`
-
----
-
-## 🧩 Firestore Database
-
-This app uses the `students` collection in Firestore.
-
-### Document ID format
-
-Document IDs are derived from the student's matric number by replacing `/` with `-`.
-
-Example:
-
-- Matric: `JABU/ACC/25/089`
-- Document ID: `JABU-ACC-25-089`
-
-### Sample fields
-
-```json
-{ "name": "John Doe", "matric": "JABU/ACC/25/089", "status": "active" }
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
----
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-## 🛠️ Key Files
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-- `index.html` + `student.js` → Student ID card w/ QR code and real-time status
-- `scanner.html` + `scanner.js` → Camera scanner + manual verify
-- `admin.html` + `admin.js` → Dashboard + suspend/reactivate logic
-- `sw.js` → Simple cache-first service worker for offline assets
-
----
-
-## 📌 Notes & Improvements
-
-- 🔒 PIN login is hardcoded; real authentication should use Firebase Auth.
-- 🔁 The service worker caches the current assets only; it can be extended to cache runtime responses.
-- 🧠 Student selection is hardcoded in `student.js` (as a prototype). For multi-user, add a login step.
-
----
-
-## 🙌 Thanks
-
-Built as a quick proof-of-concept for campus access management using QR codes and Firestore.
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```

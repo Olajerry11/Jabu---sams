@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Function to check if the user is an admin or security staff
+    function isStaff() {
+      return request.auth != null && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'security']);
+    }
+
+    // Function to check if the user is an admin
+    function isAdmin() {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /users/{userId} {
+      // Any authenticated user can read their own profile
+      // Security/Admins can read any profile
+      allow read: if request.auth != null && (request.auth.uid == userId || isStaff());
+      
+      // Only admins can create/update users
+      allow write: if isAdmin();
+    }
+
+    match /scans/{scanId} {
+      // Only staff can read logs, or users can read their own
+      allow read: if isStaff() || (request.auth != null && resource.data.userId == request.auth.uid);
+      
+      // Only security and admins can create logs
+      allow create: if isStaff();
+      
+      allow update, delete: if isAdmin();
+    }
+    
+    // Legacy support for the prototype students collection
+    match /students/{studentId} {
+      allow read: if request.auth != null;
+      allow write: if isStaff();
+    }
+  }
+}
