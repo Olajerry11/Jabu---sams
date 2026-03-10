@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase';
+import { ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { auth, db, storage } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
-import { UserPlus, Mail, KeyRound, User, AlertCircle, Building2, BookOpen, ArrowRight } from 'lucide-react';
+import { UserPlus, Mail, KeyRound, User, AlertCircle, Building2, BookOpen, ArrowRight, Camera } from 'lucide-react';
 
 type Role = 'student' | 'teaching_staff' | 'non_teaching_staff' | 'camp_guest' | 'food_vendor' | 'security';
 type Level = '100L' | '200L' | '300L' | '400L' | '500L' | 'Postgraduate' | '';
@@ -20,11 +21,16 @@ export default function Register() {
   const [role, setRole] = useState<Role>('student');
   
   // Conditional Fields
+  // Conditional Fields
   const [matric, setMatric] = useState(''); // Students
   const [level, setLevel] = useState<Level>(''); // Students
   const [department, setDepartment] = useState(''); // Students & Staff
   const [company, setCompany] = useState(''); // Vendors & Guests
   const [purpose, setPurpose] = useState(''); // Guests
+  
+  // Passport Photo
+  const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState('');
 
   const [mounted, setMounted] = useState(false);
 
@@ -32,8 +38,60 @@ export default function Register() {
     setMounted(true);
   }, []);
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+        setPhotoError('Please select a valid image file (JPG/PNG).');
+        return;
+    }
+    
+    setPhotoError('');
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_SIZE = 400; // Strict small size
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+                if (width > MAX_SIZE) {
+                    height *= MAX_SIZE / width;
+                    width = MAX_SIZE;
+                }
+            } else {
+                if (height > MAX_SIZE) {
+                    width *= MAX_SIZE / height;
+                    height = MAX_SIZE;
+                }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.drawImage(img, 0, 0, width, height);
+                // Compress severely to save weight (quality 0.6)
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                setPhotoDataUrl(dataUrl);
+            }
+        };
+        img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!photoDataUrl) {
+        setError('A passport photograph is required to create an identity pass.');
+        return;
+    }
+    
     setLoading(true);
     setError('');
     
@@ -42,14 +100,21 @@ export default function Register() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      // Update Auth Profile
-      await updateProfile(user, { displayName: name });
+      // 2. Upload Passport Photo to Firebase Storage
+      const imageRef = ref(storage, `passports/${user.uid}.jpg`);
+      await uploadString(imageRef, photoDataUrl, 'data_url');
+      const photoURL = await getDownloadURL(imageRef);
+
+      // 3. Update Auth Profile
+      await updateProfile(user, { displayName: name, photoURL });
       
       // 2. Prepare dynamic Firestore profile data
+      // 4. Prepare dynamic Firestore profile data
       const profileData: any = {
         name,
         email,
         role,
+        photoUrl: photoURL,
         status: 'active', // Default to active for demo, in prod an admin might need to approve
         createdAt: new Date().toISOString()
       };
@@ -73,10 +138,10 @@ export default function Register() {
         profileData.expiresAt = expiry.toISOString();
       }
 
-      // 3. Save to Firestore
+      // 5. Save to Firestore
       await setDoc(doc(db, 'users', user.uid), profileData);
       
-      // 4. Redirect to home (ID Card)
+      // 6. Redirect to home (ID Card)
       navigate('/');
       
     } catch (err: any) {
@@ -127,6 +192,38 @@ export default function Register() {
 
             <div className="space-y-5">
               
+              {/* Passport Photo Upload */}
+              <div className="flex flex-col sm:flex-row items-center gap-6 p-4 sm:p-6 bg-slate-50/50 border border-slate-200/60 rounded-2xl">
+                <div className="relative group shrink-0">
+                  <div className={`w-24 h-24 rounded-full flex items-center justify-center overflow-hidden border-2 transition-all duration-300 ${photoDataUrl ? 'border-brand-500 shadow-md ring-4 ring-brand-500/20' : 'border-dashed border-slate-300 bg-white hover:border-brand-400 group-hover:bg-brand-50'}`}>
+                    {photoDataUrl ? (
+                      <img src={photoDataUrl} alt="Passport Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <Camera className="w-8 h-8 text-slate-400 group-hover:text-brand-500 transition-colors" />
+                    )}
+                  </div>
+                  <input 
+                    type="file" 
+                    accept="image/jpeg, image/png" 
+                    onChange={handleImageUpload} 
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    title="Upload Passport Photograph"
+                  />
+                  {photoDataUrl && (
+                     <div className="absolute -bottom-2 -right-2 bg-white text-emerald-600 rounded-full p-1 shadow-sm border border-emerald-100 pointer-events-none">
+                         <div className="bg-emerald-500 w-3 h-3 rounded-full"></div>
+                     </div>
+                  )}
+                </div>
+                <div className="text-center sm:text-left flex-1">
+                  <h3 className="text-sm font-bold text-slate-900 mb-1">Passport Photograph <span className="text-rose-500">*</span></h3>
+                  <p className="text-xs text-slate-500 mb-2 leading-relaxed">
+                    Upload a clear, recent, strictly formatted headshot for authentication. Max size ~400px.
+                  </p>
+                  {photoError && <p className="text-xs font-bold text-rose-500 bg-rose-50 inline-block px-2 py-1 rounded">{photoError}</p>}
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">Full Name</label>

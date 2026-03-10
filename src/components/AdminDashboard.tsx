@@ -11,6 +11,7 @@ interface UserData {
   email: string;
   matric?: string;
   role: string;
+  photoUrl?: string;
   status: 'active' | 'suspended' | 'expired';
 }
 
@@ -155,7 +156,11 @@ export default function AdminDashboard() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 overflow-hidden shrink-0 group-hover:bg-white group-hover:border-slate-300 transition-colors">
-                            <User className="w-6 h-6" />
+                            {user.photoUrl ? (
+                                <img src={user.photoUrl} alt="Passport Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <User className="w-6 h-6" />
+                            )}
                           </div>
                           <div>
                             <p className="font-bold text-slate-900 text-base">{user.name || 'Unknown User'}</p>

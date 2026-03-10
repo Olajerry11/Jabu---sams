@@ -150,8 +150,12 @@ export default function StudentCard() {
             <div className="px-6 relative flex flex-col items-center">
               {/* Avatar Floating Over Ribbon */}
               <div className="w-24 h-24 bg-white rounded-3xl mx-auto -mt-12 relative z-20 shadow-xl border border-slate-100 flex items-center justify-center text-slate-300 overflow-hidden group">
-                <User className="w-10 h-10 group-hover:scale-110 transition-transform duration-300" />
-                <div className="absolute inset-0 bg-gradient-to-tr from-brand-50 to-transparent opacity-50"></div>
+                {(userData as any).photoUrl ? (
+                  <img src={(userData as any).photoUrl} alt="Passport Profile" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                ) : (
+                  <User className="w-10 h-10 group-hover:scale-110 transition-transform duration-300" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-tr from-brand-50 to-transparent opacity-50 pointer-events-none"></div>
               </div>
               
               {/* Identity Details */}

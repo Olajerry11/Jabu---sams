@@ -14,6 +14,7 @@ export default function Scanner() {
     message: string;
     studentName?: string;
     studentRole?: string;
+    studentPhoto?: string;
   }>({ status: null, message: '' });
   
   const [manualCode, setManualCode] = useState('');
@@ -123,7 +124,8 @@ export default function Scanner() {
           status: 'success' as const,
           message: 'Access Granted - Valid ID',
           studentName: targetData.name || 'User Profile',
-          studentRole: (targetData.role || '').replace('_', ' ').toUpperCase()
+          studentRole: (targetData.role || '').replace('_', ' ').toUpperCase(),
+          studentPhoto: targetData.photoUrl
         };
         setScanResult(result);
         showToast(`✅ ${result.studentName} — Access Granted`, 'success');
@@ -132,7 +134,8 @@ export default function Scanner() {
           status: 'error' as const,
           message: `Access Denied - Status: ${targetData.status ? targetData.status.toUpperCase() : 'UNKNOWN'}`,
           studentName: targetData.name || 'User Profile',
-          studentRole: (targetData.role || '').replace('_', ' ').toUpperCase()
+          studentRole: (targetData.role || '').replace('_', ' ').toUpperCase(),
+          studentPhoto: targetData.photoUrl
         };
         setScanResult(result);
         showToast(`🚫 ${result.studentName} — ${result.message}`, 'error');
@@ -208,8 +211,12 @@ export default function Scanner() {
                  
                  {scanResult.studentName && (
                    <div className="mt-8 p-5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 shadow-xl text-left flex items-center gap-5 mx-auto max-w-sm animate-slide-up">
-                     <div className="w-14 h-14 bg-slate-800 text-slate-300 rounded-xl flex items-center justify-center shrink-0 border border-slate-700">
-                       <User className="w-7 h-7" />
+                     <div className="w-14 h-14 bg-slate-800 text-slate-300 rounded-xl flex items-center justify-center shrink-0 border border-slate-700 overflow-hidden">
+                       {scanResult.studentPhoto ? (
+                           <img src={scanResult.studentPhoto} alt="Scanned Profile" className="w-full h-full object-cover" />
+                       ) : (
+                           <User className="w-7 h-7" />
+                       )}
                      </div>
                      <div>
                        <p className="font-bold text-white text-xl leading-tight">{scanResult.studentName}</p>
