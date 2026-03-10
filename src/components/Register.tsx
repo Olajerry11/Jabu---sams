@@ -153,17 +153,17 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex items-center justify-center p-4 sm:p-8 relative bg-slate-50">
+    <div className="min-h-[100dvh] flex flex-col items-center justify-center p-4 py-12 sm:p-8 relative bg-slate-50">
       {/* Decorative Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-accent-500/20 blur-[120px] mix-blend-multiply animate-float"></div>
         <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-500/20 blur-[120px] mix-blend-multiply animate-float" style={{ animationDelay: '2s' }}></div>
       </div>
 
-      <div className={`w-full max-w-6xl max-h-[calc(100vh-2rem)] sm:max-h-[95vh] flex flex-col-reverse lg:grid lg:grid-cols-5 gap-8 lg:gap-0 bg-white/80 backdrop-blur-2xl rounded-[2.5rem] premium-shadow overflow-hidden transition-all duration-1000 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+      <div className={`w-full max-w-6xl flex flex-col-reverse lg:grid lg:grid-cols-5 bg-white/80 backdrop-blur-2xl rounded-[2.5rem] premium-shadow overflow-hidden transition-all duration-1000 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
         
         {/* Left Side - Form (Larger for Register) */}
-        <div className="lg:col-span-3 p-8 sm:p-12 flex flex-col justify-center relative z-10 overflow-y-auto">
+        <div className="lg:col-span-3 p-8 sm:p-12 flex flex-col justify-center relative z-10">
           <div className="lg:hidden mb-10 flex items-center gap-3 justify-center shrink-0">
             <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center border border-brand-100 shadow-sm shrink-0">
               <img src="/jabu-logo-app.png" alt="JABU Logo" className="w-8 h-8 object-contain" />
