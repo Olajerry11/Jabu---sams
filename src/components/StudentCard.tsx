@@ -129,7 +129,7 @@ export default function StudentCard() {
               
               <div className="relative z-10 flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20">
-                  <img src="/jabu-logo.png" alt="JABU Logo" className="w-6 h-6 object-contain" />
+                  <img src="/jabu-logo-app.png" alt="JABU Logo" className="w-6 h-6 object-contain" />
                 </div>
                 <div>
                   <h2 className="m-0 text-xl font-bold tracking-tight leading-none">JABU<span className="text-accent-400">SAMS</span></h2>

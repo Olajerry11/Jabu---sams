@@ -153,20 +153,20 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex items-center justify-center p-4 sm:p-8 relative overflow-hidden bg-slate-50">
+    <div className="min-h-[100dvh] flex items-center justify-center p-4 sm:p-8 relative bg-slate-50">
       {/* Decorative Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-accent-500/20 blur-[120px] mix-blend-multiply animate-float"></div>
         <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-500/20 blur-[120px] mix-blend-multiply animate-float" style={{ animationDelay: '2s' }}></div>
       </div>
 
-      <div className={`w-full max-w-6xl flex flex-col-reverse lg:grid lg:grid-cols-5 gap-8 lg:gap-0 bg-white/80 backdrop-blur-2xl rounded-[2.5rem] premium-shadow overflow-hidden transition-all duration-1000 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+      <div className={`w-full max-w-6xl max-h-[calc(100vh-2rem)] sm:max-h-[95vh] flex flex-col-reverse lg:grid lg:grid-cols-5 gap-8 lg:gap-0 bg-white/80 backdrop-blur-2xl rounded-[2.5rem] premium-shadow overflow-hidden transition-all duration-1000 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
         
         {/* Left Side - Form (Larger for Register) */}
-        <div className="lg:col-span-3 p-8 sm:p-12 flex flex-col justify-center relative z-10">
-          <div className="lg:hidden mb-10 flex items-center gap-3 justify-center">
+        <div className="lg:col-span-3 p-8 sm:p-12 flex flex-col justify-center relative z-10 overflow-y-auto">
+          <div className="lg:hidden mb-10 flex items-center gap-3 justify-center shrink-0">
             <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center border border-brand-100 shadow-sm shrink-0">
-              <img src="/jabu-logo.png" alt="JABU Logo" className="w-8 h-8 object-contain" />
+              <img src="/jabu-logo-app.png" alt="JABU Logo" className="w-8 h-8 object-contain" />
             </div>
             <div>
               <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none">JABU<span className="text-brand-600">SAMS</span></h1>
@@ -388,7 +388,7 @@ export default function Register() {
         </div>
 
         {/* Right Side - Branding/Image (Smaller for Register) */}
-        <div className="hidden lg:flex lg:col-span-2 flex-col justify-between p-12 bg-slate-900 text-white relative overflow-hidden">
+        <div className="hidden lg:flex lg:col-span-2 flex-col justify-between p-12 bg-slate-900 text-white relative overflow-hidden h-full">
           <div className="absolute inset-0 z-0">
             <div className="absolute inset-0 bg-gradient-to-tr from-brand-900/90 to-slate-900/90 mix-blend-overlay"></div>
             <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop" alt="Campus Students" className="w-full h-full object-cover opacity-60" />
@@ -399,7 +399,7 @@ export default function Register() {
               <h1 className="text-2xl font-black text-white tracking-tight leading-none">JABU<span className="text-accent-400">SAMS</span></h1>
             </div>
             <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20">
-              <img src="/jabu-logo.png" alt="JABU Logo" className="w-6 h-6 object-contain" />
+              <img src="/jabu-logo-app.png" alt="JABU Logo" className="w-6 h-6 object-contain" />
             </div>
           </div>
 
