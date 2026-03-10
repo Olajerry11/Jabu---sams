@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { HashRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { QrCode, ScanLine, LayoutDashboard, LogOut } from 'lucide-react';
-import StudentCard from './components/StudentCard';
-import Scanner from './components/Scanner';
-import AdminDashboard from './components/AdminDashboard';
-import Login from './components/Login';
-import Register from './components/Register';
-import ForgotPassword from './components/ForgotPassword';
 import { useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+
+// Lazy-loaded routes for massive bundle size reduction
+const StudentCard = lazy(() => import('./components/StudentCard'));
+const Scanner = lazy(() => import('./components/Scanner'));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
+const Login = lazy(() => import('./components/Login'));
+const Register = lazy(() => import('./components/Register'));
+const ForgotPassword = lazy(() => import('./components/ForgotPassword'));
 
 function ProtectedRoute({ children, reqRole }: { children: React.ReactNode, reqRole?: string }) {
   const { userData, loading } = useAuth();
@@ -100,17 +102,29 @@ function App() {
           )}
 
           <main className="flex-grow w-full h-full flex flex-col relative">
-            <Routes>
-              {/* Public Routes - Take full screen automatically */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              
-              {/* Protected Routes */}
-              <Route path="/" element={<ProtectedRoute><StudentCard /></ProtectedRoute>} />
-              <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
-              <Route path="/admin" element={<ProtectedRoute reqRole="admin"><AdminDashboard /></ProtectedRoute>} />
-            </Routes>
+            <Suspense fallback={
+              <div className="flex-grow flex items-center justify-center bg-slate-50 min-h-[50vh]">
+                <div className="flex flex-col items-center gap-4 animate-fade-in">
+                   <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center relative premium-shadow">
+                     <div className="absolute inset-0 rounded-2xl border-2 border-brand-500/20 border-t-brand-600 animate-spin"></div>
+                     <img src="/jabu-logo-app.png" alt="Loading" className="w-6 h-6 object-contain opacity-50" />
+                   </div>
+                   <p className="text-sm font-bold tracking-widest text-slate-400 uppercase">Loading Interface...</p>
+                </div>
+              </div>
+            }>
+              <Routes>
+                {/* Public Routes - Take full screen automatically */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                
+                {/* Protected Routes */}
+                <Route path="/" element={<ProtectedRoute><StudentCard /></ProtectedRoute>} />
+                <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute reqRole="admin"><AdminDashboard /></ProtectedRoute>} />
+              </Routes>
+            </Suspense>
           </main>
           
           {/* Global Footer */}

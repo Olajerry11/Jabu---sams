@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import type { User } from 'firebase/auth';
@@ -59,8 +59,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signOut(auth);
   };
 
+  const value = useMemo(() => ({
+    currentUser,
+    userData,
+    loading,
+    logout
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [currentUser, userData, loading]);
+
   return (
-    <AuthContext.Provider value={{ currentUser, userData, loading, logout }}>
+    <AuthContext.Provider value={value}>
       {!loading && children}
     </AuthContext.Provider>
   );
