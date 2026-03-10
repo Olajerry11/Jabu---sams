@@ -102,100 +102,132 @@ export default function StudentCard() {
   const isActive = liveStatus === 'active';
 
   return (
-    <div className="flex flex-col items-center justify-center py-8 sm:py-12 px-4">
+    <div className="min-h-[100dvh] flex flex-col items-center justify-center p-4 sm:p-8 bg-slate-50 relative overflow-hidden">
       
-      {/* ID Card — wrapped with a printable id */}
-      <div id="printable-id-card" ref={cardRef} className="bg-white rounded-2xl w-full max-w-sm text-center shadow-[0_10px_40px_rgba(0,0,0,0.1)] no-print-shadow overflow-hidden relative border border-slate-100">
-        
-        {/* Header Ribbon */}
-        <div className="bg-blue-900 text-white p-6 pb-12 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-center bg-cover mix-blend-overlay" style={{ backgroundImage: `url(${import.meta.env.BASE_URL}jabu-logo.png)` }}></div>
-          <img src={`${import.meta.env.BASE_URL}jabu-logo.png`} alt="JABU Logo" className="w-12 h-12 mx-auto mb-2 relative z-10 object-contain drop-shadow-md" />
-          <h2 className="m-0 text-2xl font-bold tracking-tight relative z-10">JABU SAMS</h2>
-          <p className="m-0 text-xs text-blue-200 uppercase tracking-widest mt-1 relative z-10 font-medium">Digital Identity</p>
+      {/* Decorative Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[10%] left-[20%] w-[30%] h-[30%] rounded-full bg-brand-500/10 blur-[100px] animate-float"></div>
+        <div className="absolute bottom-[10%] right-[20%] w-[30%] h-[30%] rounded-full bg-accent-500/10 blur-[100px] animate-float" style={{ animationDelay: '2s' }}></div>
+      </div>
+
+      <div className="w-full max-w-md relative z-10 animate-slide-up">
+        {/* Header / Intro */}
+        <div className="text-center mb-8">
+           <h1 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Digital Identity</h1>
+           <p className="text-slate-500 mt-1">Present this pass to access campus facilities.</p>
         </div>
-        
-        {/* Profile Avatar */}
-        <div className="w-28 h-28 bg-slate-50 rounded-full mx-auto -mt-14 relative z-20 border-4 border-white shadow-sm flex items-center justify-center text-slate-400">
-          <User className="w-12 h-12" />
-        </div>
-        
-        {/* User Info */}
-        <div className="pt-4 pb-6 px-6">
-          <h3 className="m-0 text-xl sm:text-2xl font-bold text-slate-800">{userData.name || 'User Profile'}</h3>
+
+        {/* The ID Card */}
+        <div id="printable-id-card" ref={cardRef} className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] p-1 shadow-2xl shadow-brand-500/5 overflow-hidden relative border border-white no-print-shadow">
           
-          {userData.matric ? (
-            <p className="m-0 text-sm text-slate-500 mt-1 font-mono bg-slate-100 inline-block px-3 py-1 rounded-md">{userData.matric}</p>
-          ) : (
-            <p className="m-0 text-xs text-slate-500 mt-1 font-mono bg-slate-100 inline-block px-3 py-1 rounded-md uppercase">{userData.role.replace(/_/g, ' ')}</p>
-          )}
-
-          {(userData as any).department && (
-            <p className="text-xs text-slate-400 mt-1">{(userData as any).department}</p>
-          )}
-
-          {(userData as any).level && (
-            <p className="text-xs font-semibold text-blue-700 bg-blue-50 inline-block px-2 py-0.5 rounded-md mt-1">{(userData as any).level}</p>
-          )}
-          
-          <div className={`mt-4 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full font-bold text-sm transition-colors ${
-            isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
-          }`}>
-            {isActive ? <ShieldCheck className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
-            {isActive 
-              ? 'ACCESS GRANTED' 
-              : liveStatus === 'expired' ? 'PASS EXPIRED' : 'ACCESS SUSPENDED'
-            }
-          </div>
-        </div>
-
-        {/* Dynamic QR Zone */}
-        <div className="bg-slate-50 p-6 border-t border-slate-100 flex flex-col items-center justify-center">
-          {isActive ? (
-            <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-200 transition-opacity">
-              <QRCode value={qrToken} size={160} fgColor="#1e3a8a" />
-            </div>
-          ) : (
-            <div className="w-[184px] h-[184px] bg-slate-200/50 rounded-xl flex items-center justify-center border border-slate-200 border-dashed">
-              <div className="text-slate-400 text-center px-4">
-                <ShieldAlert className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <span className="text-xs font-semibold">QR DISABLED</span>
+          {/* Inner Card Container */}
+          <div className="bg-white rounded-[2.25rem] overflow-hidden relative">
+            
+            {/* Top Ribbon / Branding */}
+            <div className="bg-slate-900 text-white p-6 pb-[4.5rem] relative overflow-hidden flex items-center justify-between">
+              <div className="absolute inset-0 bg-gradient-to-tr from-brand-900/60 to-transparent"></div>
+              
+              <div className="relative z-10 flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20">
+                  <img src="/jabu-logo.png" alt="JABU Logo" className="w-6 h-6 object-contain" />
+                </div>
+                <div>
+                  <h2 className="m-0 text-xl font-bold tracking-tight leading-none">JABU<span className="text-accent-400">SAMS</span></h2>
+                  <p className="m-0 text-[10px] text-slate-300 uppercase tracking-widest mt-0.5 font-semibold">Campus Pass</p>
+                </div>
+              </div>
+              
+              <div className="relative z-10 text-right">
+                <p className="text-xs text-slate-400 font-medium">Valid ID</p>
+                <div className={`mt-1 flex items-center gap-1.5 px-2.5 py-1 ${isActive ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border-rose-500/30'} border rounded-lg text-[10px] font-bold tracking-wider`}>
+                  {isActive ? <ShieldCheck className="w-3 h-3" /> : <ShieldAlert className="w-3 h-3" />}
+                  {isActive ? 'ACTIVE' : 'SUSPENDED'}
+                </div>
               </div>
             </div>
-          )}
-          
-          <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-slate-500 bg-white px-3 py-1.5 rounded-full border border-slate-200">
-            <span className="relative flex h-2 w-2">
-              {isActive && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>}
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${isActive ? 'bg-blue-500' : 'bg-slate-400'}`}></span>
-            </span>
-            <span>TOKEN EXPIRES IN</span>
-            <span className="font-mono text-blue-600 bg-blue-50 px-1.5 rounded">{timeLeft}s</span>
+            
+            {/* User Profile Area */}
+            <div className="px-6 relative flex flex-col items-center">
+              {/* Avatar Floating Over Ribbon */}
+              <div className="w-24 h-24 bg-white rounded-3xl mx-auto -mt-12 relative z-20 shadow-xl border border-slate-100 flex items-center justify-center text-slate-300 overflow-hidden group">
+                <User className="w-10 h-10 group-hover:scale-110 transition-transform duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-brand-50 to-transparent opacity-50"></div>
+              </div>
+              
+              {/* Identity Details */}
+              <div className="text-center mt-4 mb-6 w-full">
+                <h3 className="m-0 text-2xl font-bold text-slate-900 tracking-tight">{userData.name || 'User Profile'}</h3>
+                
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  {userData.matric ? (
+                    <span className="px-3 py-1 bg-slate-100 border border-slate-200 text-slate-600 rounded-lg text-sm font-mono font-medium">{userData.matric}</span>
+                  ) : (
+                    <span className="px-3 py-1 bg-slate-100 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold uppercase tracking-wider">{userData.role.replace(/_/g, ' ')}</span>
+                  )}
+                  {(userData as any).level && (
+                    <span className="px-3 py-1 bg-brand-50 border border-brand-100 text-brand-700 rounded-lg text-sm font-bold">{(userData as any).level}</span>
+                  )}
+                </div>
+
+                {(userData as any).department && (
+                  <p className="text-sm font-medium text-slate-500 mt-2">{(userData as any).department}</p>
+                )}
+              </div>
+            </div>
+
+            {/* QR Code Section */}
+            <div className="bg-slate-50/50 border-t border-slate-100 p-8 flex flex-col items-center justify-center">
+              
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Scan at Checkpoint</p>
+
+              {isActive ? (
+                <div className="bg-white p-4 rounded-3xl shadow-lg border border-slate-100 relative group overflow-hidden">
+                  <div className="absolute inset-0 bg-brand-500/5 group-hover:bg-brand-500/10 transition-colors"></div>
+                  <QRCode value={qrToken} size={180} fgColor="#0f172a" className="relative z-10" />
+                </div>
+              ) : (
+                <div className="w-[212px] h-[212px] bg-slate-100 rounded-3xl flex items-center justify-center border-2 border-slate-200 border-dashed relative overflow-hidden">
+                  <div className="absolute inset-0 bg-stripes opacity-10"></div>
+                  <div className="text-slate-400 text-center px-4 relative z-10">
+                    <ShieldAlert className="w-10 h-10 mx-auto mb-3 opacity-40 text-rose-500" />
+                    <span className="text-sm font-bold text-rose-500 uppercase tracking-widest">Access Denied</span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Token Timer */}
+              <div className="mt-6 flex items-center gap-2 text-xs font-semibold text-slate-500 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+                <span className="relative flex h-2 w-2">
+                  {isActive && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>}
+                  <span className={`relative inline-flex rounded-full h-2 w-2 ${isActive ? 'bg-brand-500' : 'bg-slate-400'}`}></span>
+                </span>
+                <span>TOKEN EXPIRES IN</span>
+                <span className="font-mono text-brand-600 font-bold ml-1">{timeLeft}s</span>
+              </div>
+
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Action Buttons — hidden from print */}
-      <div className="mt-6 flex flex-col sm:flex-row gap-3 w-full max-w-sm print:hidden">
-        <button
-          onClick={handlePrint}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border border-slate-200 rounded-xl font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm text-sm"
-        >
-          <Printer className="w-4 h-4" />
-          Print ID Card
-        </button>
-        <button
-          onClick={handleDownload}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 rounded-xl font-semibold text-white hover:bg-blue-700 transition-all shadow-sm text-sm"
-        >
-          <Download className="w-4 h-4" />
-          Download as Image
-        </button>
+        {/* Action Buttons — hidden from print */}
+        <div className="mt-8 flex gap-3 print:hidden">
+          <button
+            onClick={handlePrint}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 bg-white border border-slate-200 rounded-2xl font-semibold text-slate-700 hover:bg-slate-50 hover:shadow-sm focus:ring-2 focus:ring-slate-200 transition-all text-sm"
+          >
+            <Printer className="w-4 h-4" />
+            Print ID
+          </button>
+          <button
+            onClick={handleDownload}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 bg-slate-900 border border-slate-900 rounded-2xl font-semibold text-white hover:bg-brand-600 hover:border-brand-600 hover:shadow-lg hover:shadow-brand-500/20 focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all text-sm"
+          >
+            <Download className="w-4 h-4" />
+            Save Copy
+          </button>
+        </div>
+        
       </div>
-      
-      <p className="mt-4 text-xs text-slate-400 text-center max-w-xs print:hidden">
-        This digital ID is time-sensitive. Present the QR code directly from your screen to gate security.
-      </p>
     </div>
   );
 }

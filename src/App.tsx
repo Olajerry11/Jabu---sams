@@ -28,69 +28,80 @@ function NavLinks() {
 
   const isActive = (path: string) => location.pathname === path;
   
-  const linkClass = (path: string) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-    isActive(path) ? 'bg-blue-100 text-blue-700' : 'text-slate-600 hover:bg-slate-100'
+  const linkClass = (path: string) => `flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
+    isActive(path) 
+      ? 'bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-500/20' 
+      : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 active:scale-95'
   }`;
 
   if (!userData) return null;
 
   return (
-    <div className="flex flex-col md:flex-row items-center gap-3">
+    <div className="flex w-full md:w-auto overflow-x-auto md:overflow-visible pb-2 md:pb-0 items-center gap-2 sm:gap-3 hide-scrollbar">
       <Link to="/" className={linkClass('/')}>
-        <QrCode className="w-4 h-4" /> My Pass
+        <QrCode className="w-4 h-4 shrink-0" /> <span className="whitespace-nowrap">My Pass</span>
       </Link>
       
       {(userData.role === 'admin' || userData.role === 'security') && (
         <Link to="/scanner" className={linkClass('/scanner')}>
-          <ScanLine className="w-4 h-4" /> Scanner
+          <ScanLine className="w-4 h-4 shrink-0" /> <span className="whitespace-nowrap">Scanner</span>
         </Link>
       )}
 
       {userData.role === 'admin' && (
         <Link to="/admin" className={linkClass('/admin')}>
-          <LayoutDashboard className="w-4 h-4" /> Admin
+          <LayoutDashboard className="w-4 h-4 shrink-0" /> <span className="whitespace-nowrap">Admin</span>
         </Link>
       )}
 
-      <div className="w-px h-6 bg-slate-200 mx-2 hidden md:block"></div>
+      <div className="w-px h-8 bg-slate-200 mx-1 md:mx-3 shrink-0 hidden md:block"></div>
       
       <button 
         onClick={handleLogout}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors w-full md:w-auto mt-2 md:mt-0"
+        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 transition-all ml-auto md:ml-0 shadow-sm ring-1 ring-rose-500/10 hover:ring-rose-500/30 active:scale-95 shrink-0"
       >
-        <LogOut className="w-4 h-4" /> Sign Out
+        <LogOut className="w-4 h-4" /> <span className="hidden sm:inline">Sign Out</span>
       </button>
     </div>
   );
 }
 
 function App() {
+  const { userData } = useAuth(); // Needed to conditionally render nav
+  
   return (
     <ToastProvider>
       <Router>
-        <div className="min-h-screen bg-slate-50 font-sans flex flex-col">
-          {/* Global Navigation - Only visible when logged in handled by NavLinks internally */}
-          <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex flex-col md:flex-row justify-between items-center py-4 gap-4 md:gap-0">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 shadow-sm shrink-0">
-                    <img src={`${import.meta.env.BASE_URL}jabu-logo.png`} alt="JABU Logo" className="w-7 h-7 object-contain" />
+        <div className="min-h-[100dvh] bg-slate-50 font-sans flex flex-col selection:bg-brand-500/30 selection:text-brand-900">
+          
+          {/* Global Navigation - Only render when logged in */}
+          {userData && (
+            <nav className="glass-panel rounded-none border-t-0 border-x-0 border-b border-white/50 sticky top-0 z-50">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center py-4 gap-4 md:gap-0">
+                  
+                  {/* Branding */}
+                  <div className="flex items-center gap-3 shrink-0">
+                    <div className="w-10 h-10 bg-white shadow-sm border border-slate-100 rounded-xl flex items-center justify-center p-2">
+                       <img src="/jabu-logo.png" alt="JABU Logo" className="w-full h-full object-contain" />
+                    </div>
+                    <div>
+                      <h1 className="text-xl font-display font-black text-slate-900 tracking-tight leading-none">
+                        JABU<span className="text-brand-600">SAMS</span>
+                      </h1>
+                      <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest mt-0.5">Campus Identity</p>
+                    </div>
                   </div>
-                  <div>
-                    <h1 className="text-xl font-black text-slate-900 tracking-tight leading-none">JABU<span className="text-blue-600">SAMS</span></h1>
-                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest mt-0.5">Digital Campus Identity</p>
-                  </div>
+                  
+                  <NavLinks />
                 </div>
-                
-                <NavLinks />
               </div>
-            </div>
-          </nav>
+            </nav>
+          )}
 
-          <main className="flex-grow w-full max-w-5xl mx-auto">
+          <main className="flex-grow w-full h-full flex flex-col relative">
             <Routes>
-              {/* Public Routes */}
+              {/* Public Routes - Take full screen automatically */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -102,13 +113,15 @@ function App() {
             </Routes>
           </main>
           
-          <footer className="bg-white border-t border-slate-200 py-6 mt-12">
-            <div className="max-w-5xl mx-auto px-4 text-center">
-              <p className="text-sm font-medium text-slate-500">
-                &copy; {new Date().getFullYear()} Joseph Ayo Babalola University. All Rights Reserved.
+          {/* Global Footer */}
+          <footer className="bg-white/50 backdrop-blur-md border-t border-slate-200/50 py-6 mt-auto shrink-0 relative z-20">
+            <div className="max-w-7xl mx-auto px-4 text-center">
+              <p className="text-xs font-semibold text-slate-400 tracking-wide uppercase">
+                &copy; {new Date().getFullYear()} Joseph Ayo Babalola University
               </p>
             </div>
           </footer>
+
         </div>
       </Router>
     </ToastProvider>
