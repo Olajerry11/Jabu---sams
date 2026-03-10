@@ -32,7 +32,7 @@ export default function Login() {
       <div className="max-w-md w-full">
         <div className="text-center mb-10">
           <div className="mx-auto w-20 h-20 bg-white rounded-3xl flex items-center justify-center mb-6 shadow-md border border-slate-100 overflow-hidden">
-            <img src="/jabu-logo.png" alt="JABU Logo" className="w-16 h-16 object-contain" />
+            <img src={`${import.meta.env.BASE_URL}jabu-logo.png`} alt="JABU Logo" className="w-16 h-16 object-contain" />
           </div>
           <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Sign in to SAMS</h2>
           <p className="mt-2 text-sm text-slate-500">Access your digital identity and permissions.</p>

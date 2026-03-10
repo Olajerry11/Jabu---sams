@@ -76,7 +76,7 @@ function App() {
               <div className="flex flex-col md:flex-row justify-between items-center py-4 gap-4 md:gap-0">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 shadow-sm shrink-0">
-                    <img src="/jabu-logo.png" alt="JABU Logo" className="w-7 h-7 object-contain" />
+                    <img src={`${import.meta.env.BASE_URL}jabu-logo.png`} alt="JABU Logo" className="w-7 h-7 object-contain" />
                   </div>
                   <div>
                     <h1 className="text-xl font-black text-slate-900 tracking-tight leading-none">JABU<span className="text-blue-600">SAMS</span></h1>

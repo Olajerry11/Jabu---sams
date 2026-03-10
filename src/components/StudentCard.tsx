@@ -109,8 +109,8 @@ export default function StudentCard() {
         
         {/* Header Ribbon */}
         <div className="bg-blue-900 text-white p-6 pb-12 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('/jabu-logo.png')] bg-center bg-cover mix-blend-overlay"></div>
-          <img src="/jabu-logo.png" alt="JABU Logo" className="w-12 h-12 mx-auto mb-2 relative z-10 object-contain drop-shadow-md" />
+          <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-center bg-cover mix-blend-overlay" style={{ backgroundImage: `url(${import.meta.env.BASE_URL}jabu-logo.png)` }}></div>
+          <img src={`${import.meta.env.BASE_URL}jabu-logo.png`} alt="JABU Logo" className="w-12 h-12 mx-auto mb-2 relative z-10 object-contain drop-shadow-md" />
           <h2 className="m-0 text-2xl font-bold tracking-tight relative z-10">JABU SAMS</h2>
           <p className="m-0 text-xs text-blue-200 uppercase tracking-widest mt-1 relative z-10 font-medium">Digital Identity</p>
         </div>
