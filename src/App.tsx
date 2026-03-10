@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { QrCode, ScanLine, LayoutDashboard, LogOut } from 'lucide-react';
 import StudentCard from './components/StudentCard';
 import Scanner from './components/Scanner';
@@ -7,7 +7,7 @@ import AdminDashboard from './components/AdminDashboard';
 import Login from './components/Login';
 import Register from './components/Register';
 import ForgotPassword from './components/ForgotPassword';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 
 function ProtectedRoute({ children, reqRole }: { children: React.ReactNode, reqRole?: string }) {
@@ -66,9 +66,8 @@ function NavLinks() {
 
 function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-      <Router basename={import.meta.env.BASE_URL}>
+    <ToastProvider>
+      <Router>
         <div className="min-h-screen bg-slate-50 font-sans flex flex-col">
           {/* Global Navigation - Only visible when logged in handled by NavLinks internally */}
           <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
@@ -112,8 +111,7 @@ function App() {
           </footer>
         </div>
       </Router>
-      </ToastProvider>
-    </AuthProvider>
+    </ToastProvider>
   );
 }
 
