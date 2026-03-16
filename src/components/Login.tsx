@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
-import { KeyRound, Mail, AlertCircle, ArrowRight } from 'lucide-react';
+import { KeyRound, Mail, AlertCircle, ArrowRight, User } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -11,11 +12,23 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [currentImage, setCurrentImage] = useState(0);
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { userData } = useAuth();
+
+  const carouselImages = [
+    "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop",
+    "https://plus.unsplash.com/premium_photo-1661909267160-c368ffb34da5?q=80&w=2070&auto=format&fit=crop"
+  ];
 
   useEffect(() => {
     setMounted(true);
+    const interval = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % carouselImages.length);
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -44,136 +57,179 @@ export default function Login() {
 
       <div className={`w-full max-w-5xl flex flex-col lg:grid lg:grid-cols-2 bg-white/80 backdrop-blur-2xl rounded-[2.5rem] premium-shadow overflow-hidden transition-all duration-1000 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
         
-        {/* Left Side - Branding */}
-        <div className="hidden lg:flex flex-col justify-between p-12 bg-slate-900 text-white relative overflow-hidden">
+        {/* Top/Left Side - Branding & Carousel */}
+        <div className="flex flex-col justify-between p-8 md:p-12 bg-slate-900 text-white relative overflow-hidden min-h-[300px] lg:min-h-full">
+          {/* Carousel Backgrounds */}
           <div className="absolute inset-0 z-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-brand-600/90 to-slate-900/90 mix-blend-overlay"></div>
-            <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop" alt="Campus Building" className="w-full h-full object-cover opacity-50" />
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-600/90 to-slate-900/90 mix-blend-overlay z-10 transition-colors duration-1000"></div>
+            {carouselImages.map((img, index) => (
+              <img 
+                key={index}
+                src={img} 
+                alt="Campus" 
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                  index === currentImage ? 'opacity-60' : 'opacity-0'
+                }`}
+              />
+            ))}
           </div>
           
           <div className="relative z-10 flex items-center gap-3">
-            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg">
-              <img src="/jabu-logo-app.png" alt="JABU Logo" className="w-8 h-8 object-contain" />
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-xl flex items-center justify-center shadow-lg shrink-0 p-1">
+              <img src="/jabu-logo.png" alt="JABU Logo" className="w-full h-full object-contain" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white tracking-tight leading-none">JABU<span className="text-accent-400">SAMS</span></h1>
-              <p className="text-[10px] uppercase font-bold text-slate-300 tracking-widest mt-0.5">Digital Campus Identity</p>
+              <h1 className="text-xl md:text-2xl font-black text-white tracking-tight leading-none">JABU<span className="text-accent-400">SAMS</span></h1>
+              <p className="text-[9px] md:text-[10px] uppercase font-bold text-slate-300 tracking-widest mt-0.5">Digital Campus Identity</p>
             </div>
           </div>
 
-          <div className="relative z-10 mt-20">
-            <h2 className="text-4xl font-display font-medium leading-tight mb-6">
-              Secure, swift, and <br/>
+          <div className="relative z-10 mt-12 md:mt-20">
+            <h2 className="text-3xl md:text-4xl font-display font-medium leading-tight mb-4 md:mb-6">
+              Secure, swift, and <br className="hidden md:block"/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-400 to-brand-300 font-bold">seamless access.</span>
             </h2>
-            <p className="text-slate-300 text-lg max-w-md">
+            <p className="text-slate-300 text-sm md:text-lg max-w-md">
               Manage student and staff identities, perform swift verifications, and monitor campus security all from one dashboard.
             </p>
           </div>
           
-          <div className="relative z-10 hidden lg:block">
-             <div className="flex gap-2">
-                <div className="w-2 h-2 rounded-full bg-accent-400"></div>
-                <div className="w-2 h-2 rounded-full bg-white/30"></div>
-                <div className="w-2 h-2 rounded-full bg-white/30"></div>
-             </div>
+          {/* Carousel Indicators */}
+          <div className="relative z-10 mt-8 flex gap-2">
+            {carouselImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentImage(index)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === currentImage 
+                    ? 'w-6 bg-accent-400' 
+                    : 'w-2 bg-white/30 hover:bg-white/50'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
           </div>
         </div>
 
-        {/* Right Side - Form */}
+        {/* Right Side - Form / Status */}
         <div className="p-8 sm:p-12 lg:p-16 flex flex-col justify-center relative z-10">
-          <div className="lg:hidden mb-10 flex items-center gap-3 justify-center shrink-0">
-            <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center border border-brand-100 shadow-sm shrink-0">
-              <img src="/jabu-logo-app.png" alt="JABU Logo" className="w-8 h-8 object-contain" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none">JABU<span className="text-brand-600">SAMS</span></h1>
-              <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest mt-0.5">Digital Identity</p>
-            </div>
-          </div>
 
-          <div className="mb-10 text-center lg:text-left">
-            <h2 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Welcome back</h2>
-            <p className="mt-2 text-slate-500">Sign in to your account to continue.</p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-6">
-            {error && (
-              <div className="p-4 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 text-sm flex items-start gap-3 animate-fade-in">
-                <AlertCircle className="w-5 h-5 shrink-0" />
-                <span>{error}</span>
+          {userData ? (
+            <div className="text-center animate-fade-in py-8">
+              <div className="w-24 h-24 rounded-full bg-brand-50 mx-auto mb-6 flex items-center justify-center border-4 border-white shadow-lg overflow-hidden relative">
+                 {userData.photoUrl ? (
+                    <img src={userData.photoUrl} alt="Profile" className="w-full h-full object-cover" />
+                 ) : (
+                    <User className="w-10 h-10 text-brand-300" />
+                 )}
               </div>
-            )}
+              <h2 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Active Identity Detected</h2>
+              <p className="mt-2 text-slate-500 font-medium">Welcome back, <span className="text-slate-900 font-bold">{userData.name || userData.email}</span>.</p>
+              
+              <button
+                onClick={() => navigate('/')}
+                className="group mt-10 w-full flex items-center justify-center py-4 px-4 rounded-xl text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 hover:shadow-lg hover:shadow-brand-500/25 active:scale-[0.98] transition-all duration-200"
+              >
+                Continue to My Pass
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </button>
+              
+              <div className="mt-6">
+                <p className="text-xs text-slate-400 font-medium tracking-wide">
+                  Signing in as a different user? 
+                  <button 
+                  onClick={() => auth.signOut()}
+                  className="ml-1 text-slate-600 hover:text-slate-900 font-bold hover:underline transition-colors focus:outline-none">Sign Out</button>
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="animate-fade-in">
+              <div className="mb-10 text-center lg:text-left">
+                <h2 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Welcome back</h2>
+                <p className="mt-2 text-slate-500">Sign in to your account to continue.</p>
+              </div>
 
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="email">Email address</label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-600 transition-colors">
-                    <Mail className="w-5 h-5" />
+              <form onSubmit={handleLogin} className="space-y-6">
+                {error && (
+                  <div className="p-4 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 text-sm flex items-start gap-3 animate-fade-in">
+                    <AlertCircle className="w-5 h-5 shrink-0" />
+                    <span>{error}</span>
                   </div>
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:bg-white transition-all duration-200"
-                    placeholder="jdoe@jabu.edu.ng"
-                  />
-                </div>
-              </div>
+                )}
 
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-semibold text-slate-700" htmlFor="password">Password</label>
-                  <Link to="/forgot-password" className="text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors">
-                    Forgot password?
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="email">Email address</label>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-600 transition-colors">
+                        <Mail className="w-5 h-5" />
+                      </div>
+                      <input
+                        id="email"
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="block w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:bg-white transition-all duration-200"
+                        placeholder="jdoe@jabu.edu.ng"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-semibold text-slate-700" htmlFor="password">Password</label>
+                      <Link to="/forgot-password" className="text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors">
+                        Forgot password?
+                      </Link>
+                    </div>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-600 transition-colors">
+                        <KeyRound className="w-5 h-5" />
+                      </div>
+                      <input
+                        id="password"
+                        type="password"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="block w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:bg-white transition-all duration-200"
+                        placeholder="••••••••"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`group w-full flex items-center justify-center py-4 px-4 rounded-2xl text-sm font-bold text-white transition-all duration-200 ${
+                    loading 
+                      ? 'bg-slate-300 cursor-not-allowed' 
+                      : 'bg-slate-900 hover:bg-brand-600 hover:shadow-lg hover:shadow-brand-500/25 active:scale-[0.98]'
+                  }`}
+                >
+                  {loading ? 'Verifying Identity...' : (
+                    <>
+                      Sign In to Dashboard
+                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </button>
+              </form>
+              
+              <div className="mt-10 text-center">
+                <p className="text-sm text-slate-500 font-medium">
+                  Don't have a digital identity yet?{' '}
+                  <Link to="/register" className="text-brand-600 font-bold hover:text-brand-700 hover:underline underline-offset-4 transition-all">
+                    Register Here
                   </Link>
-                </div>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-600 transition-colors">
-                    <KeyRound className="w-5 h-5" />
-                  </div>
-                  <input
-                    id="password"
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:bg-white transition-all duration-200"
-                    placeholder="••••••••"
-                  />
-                </div>
+                </p>
               </div>
             </div>
+          )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className={`group w-full flex items-center justify-center py-4 px-4 rounded-2xl text-sm font-bold text-white transition-all duration-200 ${
-                loading 
-                  ? 'bg-slate-300 cursor-not-allowed' 
-                  : 'bg-slate-900 hover:bg-brand-600 hover:shadow-lg hover:shadow-brand-500/25 active:scale-[0.98]'
-              }`}
-            >
-              {loading ? 'Verifying Identity...' : (
-                <>
-                  Sign In to Dashboard
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
-            </button>
-          </form>
-          
-          <div className="mt-10 text-center">
-            <p className="text-sm text-slate-500 font-medium">
-              Don't have a digital identity yet?{' '}
-              <Link to="/register" className="text-brand-600 font-bold hover:text-brand-700 hover:underline underline-offset-4 transition-all">
-                Register Here
-              </Link>
-            </p>
-          </div>
         </div>
       </div>
     </div>

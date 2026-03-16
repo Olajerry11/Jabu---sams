@@ -3,37 +3,66 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Function to check if the user is an admin or security staff
-    function isStaff() {
-      return request.auth != null && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'security']);
-    }
-
-    // Function to check if the user is an admin
     function isAdmin() {
-      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
+    function isSecurity() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'security';
+    }
+
+    function isStaff() {
+      return isAdmin() || isSecurity();
+    }
+
+    // ── Users ────────────────────────────────────────────────────────────
     match /users/{userId} {
-      // Any authenticated user can read their own profile
-      // Security/Admins can read any profile
       allow read: if request.auth != null && (request.auth.uid == userId || isStaff());
-      
-      // Admins can create/update ANY user.
-      // Individuals can create/update THEIR OWN profile during registration/settings.
       allow write: if isAdmin() || (request.auth != null && request.auth.uid == userId);
     }
 
+    // ── Scan Logs ─────────────────────────────────────────────────────────
     match /scans/{scanId} {
-      // Only staff can read logs, or users can read their own
       allow read: if isStaff() || (request.auth != null && resource.data.userId == request.auth.uid);
-      
-      // Only security and admins can create logs
       allow create: if isStaff();
-      
       allow update, delete: if isAdmin();
     }
-    
-    // Legacy support for the prototype students collection
+
+    // ── Gate Pass / Exeat Requests ────────────────────────────────────────
+    match /exeat_requests/{requestId} {
+      allow read: if isStaff() || (request.auth != null && resource.data.userId == request.auth.uid);
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if isStaff();
+      allow delete: if isAdmin();
+    }
+
+    // ── Profile Change Requests ───────────────────────────────────────────
+    match /change_requests/{requestId} {
+      // Users can create their own requests; admins read/update all
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Luggage Logs ──────────────────────────────────────────────────────
+    match /luggage_logs/{logId} {
+      // Security and admins can create; admins read all; users read their own
+      allow create: if isStaff();
+      allow read: if isAdmin() || (request.auth != null && resource.data.studentUid == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Security Online Status ────────────────────────────────────────────
+    match /security_status/{uid} {
+      // Security officers write their own status; admins read all security statuses
+      allow read: if isAdmin();
+      allow write: if request.auth != null && (request.auth.uid == uid || isAdmin());
+    }
+
+    // ── Legacy students collection ────────────────────────────────────────
     match /students/{studentId} {
       allow read: if request.auth != null;
       allow write: if isStaff();

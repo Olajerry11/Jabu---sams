@@ -72,7 +72,7 @@ export default function ForgotPassword() {
               )}
 
               <p className="text-sm text-slate-600 mb-8 font-medium leading-relaxed">
-                Enter the email address associated with your account and we'll send you a link to reset your password.
+                Provide your registered email address. We will send you a highly secure link directly to your inbox with instructions on how to create a new password and recover your campus pass.
               </p>
 
               <div className="mb-8 group">

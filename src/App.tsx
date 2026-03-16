@@ -20,6 +20,16 @@ function ProtectedRoute({ children, reqRole }: { children: React.ReactNode, reqR
   return children;
 }
 
+/** Root "/" redirect based on role */
+function RoleRedirect() {
+  const { userData, loading } = useAuth();
+  if (loading) return <div className="p-8 text-center text-slate-500">Loading Access Control...</div>;
+  if (!userData) return <Navigate to="/login" replace />;
+  if (userData.role === 'admin') return <Navigate to="/admin" replace />;
+  if (userData.role === 'security') return <Navigate to="/scanner" replace />;
+  return <StudentCard />;
+}
+
 function NavLinks() {
   const location = useLocation();
   const { userData, logout } = useAuth();
@@ -40,20 +50,31 @@ function NavLinks() {
 
   return (
     <div className="flex w-full md:w-auto overflow-x-auto md:overflow-visible pb-2 md:pb-0 items-center gap-2 sm:gap-3 hide-scrollbar">
-      <Link to="/" className={linkClass('/')}>
-        <QrCode className="w-4 h-4 shrink-0" /> <span className="whitespace-nowrap">My Pass</span>
-      </Link>
       
-      {(userData.role === 'admin' || userData.role === 'security') && (
+      {/* Students and teaching/non-teaching staff see their own pass */}
+      {userData.role !== 'admin' && userData.role !== 'security' && (
+        <Link to="/" className={linkClass('/')}>
+          <QrCode className="w-4 h-4 shrink-0" /> <span className="whitespace-nowrap">My Pass</span>
+        </Link>
+      )}
+      
+      {/* Security sees ONLY the Scanner */}
+      {userData.role === 'security' && (
         <Link to="/scanner" className={linkClass('/scanner')}>
           <ScanLine className="w-4 h-4 shrink-0" /> <span className="whitespace-nowrap">Scanner</span>
         </Link>
       )}
 
+      {/* Admin sees ONLY the Admin Dashboard (+ scanner access is still via URL) */}
       {userData.role === 'admin' && (
-        <Link to="/admin" className={linkClass('/admin')}>
-          <LayoutDashboard className="w-4 h-4 shrink-0" /> <span className="whitespace-nowrap">Admin</span>
-        </Link>
+        <>
+          <Link to="/admin" className={linkClass('/admin')}>
+            <LayoutDashboard className="w-4 h-4 shrink-0" /> <span className="whitespace-nowrap">Admin Dashboard</span>
+          </Link>
+          <Link to="/scanner" className={linkClass('/scanner')}>
+            <ScanLine className="w-4 h-4 shrink-0" /> <span className="whitespace-nowrap">Scanner</span>
+          </Link>
+        </>
       )}
 
       <div className="w-px h-8 bg-slate-200 mx-1 md:mx-3 shrink-0 hidden md:block"></div>
@@ -84,7 +105,7 @@ function App() {
                   
                   {/* Branding */}
                   <div className="flex items-center gap-3 shrink-0">
-                    <div className="w-10 h-10 bg-white shadow-sm border border-slate-100 rounded-xl flex items-center justify-center p-2">
+                    <div className="w-10 h-10 bg-white shadow-sm border border-slate-100 rounded-xl flex items-center justify-center p-1">
                        <img src="/jabu-logo.png" alt="JABU Logo" className="w-full h-full object-contain" />
                     </div>
                     <div>
@@ -114,13 +135,14 @@ function App() {
               </div>
             }>
               <Routes>
-                {/* Public Routes - Take full screen automatically */}
+                {/* Public Routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 
                 {/* Protected Routes */}
-                <Route path="/" element={<ProtectedRoute><StudentCard /></ProtectedRoute>} />
+                {/* "/" is role-aware: admin→/admin, security→/scanner, others→StudentCard */}
+                <Route path="/" element={<ProtectedRoute><RoleRedirect /></ProtectedRoute>} />
                 <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
                 <Route path="/admin" element={<ProtectedRoute reqRole="admin"><AdminDashboard /></ProtectedRoute>} />
               </Routes>
