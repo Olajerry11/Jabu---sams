@@ -96,13 +96,21 @@ function StartupAnimation({ onComplete }: { onComplete: () => void }) {
     'The First Entrepreneurial University in Nigeria.',
   ];
 
+  const [logoReady, setLogoReady] = useState(false);      // logo has finished rolling
   const [displayedLines, setDisplayedLines] = useState(['', '', '']);
   const [currentLine, setCurrentLine] = useState(0);
   const [currentChar, setCurrentChar] = useState(0);
   const [fadeOut, setFadeOut] = useState(false);
 
-  // Typewriter tick
+  // Trigger typewriter after logo roll completes (~1s)
   useEffect(() => {
+    const t = setTimeout(() => setLogoReady(true), 1000);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Typewriter tick — only starts after logoReady
+  useEffect(() => {
+    if (!logoReady) return;
     if (currentLine >= lines.length) return;
 
     const target = lines[currentLine];
@@ -114,22 +122,21 @@ function StartupAnimation({ onComplete }: { onComplete: () => void }) {
           return next;
         });
         setCurrentChar(c => c + 1);
-      }, 38); // typing speed per character
+      }, 38);
       return () => clearTimeout(t);
     } else {
-      // Move to next line after a short pause
       const t = setTimeout(() => {
         setCurrentLine(l => l + 1);
         setCurrentChar(0);
       }, 320);
       return () => clearTimeout(t);
     }
-  }, [currentLine, currentChar]);
+  }, [logoReady, currentLine, currentChar]);
 
-  // Auto-dismiss
+  // Auto-dismiss after logo roll + all typing is done
   useEffect(() => {
     const totalChars = lines.reduce((a, b) => a + b.length, 0);
-    const typingMs = totalChars * 38 + lines.length * 320 + 800; // typing + pauses + buffer
+    const typingMs = 1000 + totalChars * 38 + lines.length * 320 + 800;
     const fadeTimer = setTimeout(() => setFadeOut(true), typingMs);
     const doneTimer = setTimeout(() => onComplete(), typingMs + 600);
     return () => { clearTimeout(fadeTimer); clearTimeout(doneTimer); };
@@ -142,18 +149,31 @@ function StartupAnimation({ onComplete }: { onComplete: () => void }) {
   ];
 
   return (
-    <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900 text-white transition-opacity duration-600 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
-      {/* Logo */}
-      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 p-2 mb-8 animate-bounce">
-        <img src={`${import.meta.env.BASE_URL}jabu-logo.png`} alt="JABU Logo" className="w-full h-full object-contain" />
+    <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900 text-white transition-opacity duration-700 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
+
+      {/* Rolling Logo */}
+      <div
+        className="w-20 h-20 sm:w-24 sm:h-24 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 p-2 mb-8"
+        style={{
+          animation: 'logoRoll 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        }}
+      >
+        <img
+          src={`${import.meta.env.BASE_URL}jabu-logo.png`}
+          alt="JABU Logo"
+          className="w-full h-full object-contain"
+          style={{ animation: 'logoSpin 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards' }}
+        />
       </div>
 
-      {/* Typewriter Text */}
-      <div className="flex flex-col items-center gap-3 px-6 max-w-xl text-center">
+      {/* Typewriter Text — fades in only after logo rolls */}
+      <div
+        className="flex flex-col items-center gap-3 px-6 max-w-xl text-center transition-opacity duration-500"
+        style={{ opacity: logoReady ? 1 : 0 }}
+      >
         {lines.map((_, i) => (
           <p key={i} className={lineStyles[i]}>
             {displayedLines[i]}
-            {/* Blinking cursor on current active line */}
             {i === currentLine && currentLine < lines.length && (
               <span className="inline-block w-[2px] h-[1em] bg-brand-400 ml-0.5 align-middle animate-pulse" />
             )}
@@ -167,6 +187,20 @@ function StartupAnimation({ onComplete }: { onComplete: () => void }) {
         <div className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
         <div className="w-2 h-2 rounded-full bg-brand-300 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
       </div>
+
+      {/* Keyframes injected via style tag */}
+      <style>{`
+        @keyframes logoRoll {
+          0%   { opacity: 0; transform: scale(0.2) translateY(60px); }
+          60%  { opacity: 1; transform: scale(1.15) translateY(-8px); }
+          80%  { transform: scale(0.95) translateY(4px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes logoSpin {
+          0%   { transform: rotate(-360deg); }
+          100% { transform: rotate(0deg); }
+        }
+      `}</style>
     </div>
   );
 }
