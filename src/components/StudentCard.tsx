@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import QRCode from 'react-qr-code';
-import { User, ShieldAlert, ShieldCheck, Printer, Download, MessageSquare, X, Edit3, ChevronDown } from 'lucide-react';
+import { User, ShieldAlert, ShieldCheck, MessageSquare, X, Edit3, ChevronDown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { doc, onSnapshot, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -23,7 +23,6 @@ export default function StudentCard() {
   const [timeLeft, setTimeLeft] = useState(60);
   const [qrToken, setQrToken] = useState('');
   const cardRef = useRef<HTMLDivElement>(null);
-  const [isPrinting, setIsPrinting] = useState(false);
 
   // ── Live Status ───────────────────────────────────────────────────────────
   const [liveStatus, setLiveStatus] = useState<'active' | 'suspended' | 'expired'>('active');
@@ -66,7 +65,7 @@ export default function StudentCard() {
   // ── 60-second QR Token Generator ─────────────────────────────────────────
   useEffect(() => {
     const generateToken = () => {
-      if (!userData || isPrinting) return;
+      if (!userData) return;
       const activeStatus = liveStatus === 'active';
       const randomToken = Math.random().toString(36).substring(2, 10).toUpperCase();
       setQrToken(activeStatus ? `JABU-TOTP-${userData.uid}-${randomToken}` : '');
@@ -75,7 +74,6 @@ export default function StudentCard() {
 
     generateToken();
     const interval = setInterval(() => {
-      if (isPrinting) return; // pause countdown during print
       setTimeLeft((prev) => {
         if (prev <= 1) {
           generateToken();
@@ -87,48 +85,7 @@ export default function StudentCard() {
 
     return () => clearInterval(interval);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [liveStatus, userData, isPrinting]);
-
-  // ── Print Handler ─────────────────────────────────────────────────────────
-  const handlePrint = () => {
-    setIsPrinting(true);
-    showToast('Opening print dialog...', 'info');
-    setTimeout(() => {
-      window.print();
-      // Resume QR refresh after print dialog is dismissed
-      setTimeout(() => setIsPrinting(false), 2000);
-    }, 300);
-  };
-
-  // ── Download Handler ──────────────────────────────────────────────────────
-  const handleDownload = async () => {
-    if (!cardRef.current) return;
-    try {
-      const html2canvas = (await import('html2canvas')).default;
-      showToast('Generating your ID card image...', 'info');
-
-      // Brief pause so React can flush the QR rendering
-      await new Promise((r) => setTimeout(r, 200));
-
-      const canvas = await html2canvas(cardRef.current, {
-        backgroundColor: '#ffffff',
-        scale: 3,
-        useCORS: true,
-        allowTaint: false,
-        logging: false,
-        foreignObjectRendering: false,
-        imageTimeout: 15000,
-      });
-      const link = document.createElement('a');
-      link.download = `JABU-ID-${userData?.name?.replace(/\s+/g, '-') ?? 'card'}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      showToast('ID Card downloaded successfully!', 'success');
-    } catch (err) {
-      console.error(err);
-      showToast('Download failed. Try printing instead.', 'error');
-    }
-  };
+  }, [liveStatus, userData]);
 
   // ── Exeat Submit ──────────────────────────────────────────────────────────
   const handleSubmitExeat = async (e: React.FormEvent) => {
@@ -308,34 +265,16 @@ export default function StudentCard() {
               {/* Token Timer — 60 seconds */}
               <div className="mt-6 flex items-center gap-2 text-xs font-semibold text-slate-500 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
                 <span className="relative flex h-2 w-2">
-                  {isActive && !isPrinting && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>}
+                  {isActive && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>}
                   <span className={`relative inline-flex rounded-full h-2 w-2 ${isActive ? 'bg-brand-500' : 'bg-slate-400'}`}></span>
                 </span>
                 <span>TOKEN EXPIRES IN</span>
                 <span className={`font-mono font-bold ml-1 ${timeLeft <= 10 ? 'text-rose-500' : 'text-brand-600'}`}>{timeLeft}s</span>
-                {isPrinting && <span className="text-slate-400 italic ml-1">Paused for print</span>}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Action Buttons — hidden from print */}
-        <div className="mt-8 flex gap-3 print:hidden">
-          <button
-            onClick={handlePrint}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 bg-white border border-slate-200 rounded-2xl font-semibold text-slate-700 hover:bg-slate-50 hover:shadow-sm focus:ring-2 focus:ring-slate-200 transition-all text-sm"
-          >
-            <Printer className="w-4 h-4" />
-            Print ID
-          </button>
-          <button
-            onClick={handleDownload}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 bg-slate-900 border border-slate-900 rounded-2xl font-semibold text-white hover:bg-brand-600 hover:border-brand-600 hover:shadow-lg hover:shadow-brand-500/20 focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all text-sm"
-          >
-            <Download className="w-4 h-4" />
-            Save Copy
-          </button>
-        </div>
       </div>
 
       {/* ── Exeat / Gate Pass Modal ── */}

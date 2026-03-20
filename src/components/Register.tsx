@@ -4,7 +4,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
-import { UserPlus, Mail, KeyRound, User, AlertCircle, Building2, BookOpen, ArrowRight, Camera } from 'lucide-react';
+import { UserPlus, Mail, KeyRound, User, AlertCircle, Building2, ArrowRight, Camera } from 'lucide-react';
 
 type Role = 'student' | 'teaching_staff' | 'non_teaching_staff' | 'camp_guest' | 'food_vendor' | 'security';
 type Level = '100L' | '200L' | '300L' | '400L' | '500L' | 'Postgraduate' | '';
@@ -21,10 +21,13 @@ export default function Register() {
   const [role, setRole] = useState<Role>('student');
   
   // Conditional Fields
-  // Conditional Fields
   const [matric, setMatric] = useState(''); // Students
   const [level, setLevel] = useState<Level>(''); // Students
   const [department, setDepartment] = useState(''); // Students & Staff
+  const [collegeFaculty, setCollegeFaculty] = useState(''); // Students
+  const [studentType, setStudentType] = useState('REGULAR'); // Students
+  const [phone, setPhone] = useState(''); // Students
+  const [parentPhone, setParentPhone] = useState(''); // Students
   const [company, setCompany] = useState(''); // Vendors & Guests
   const [purpose, setPurpose] = useState(''); // Guests
   
@@ -36,9 +39,9 @@ export default function Register() {
   const [currentImage, setCurrentImage] = useState(0);
 
   const carouselImages = [
-    "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop",
-    "https://plus.unsplash.com/premium_photo-1661909267160-c368ffb34da5?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop"
+    "/Register-1.jpg.jpg",
+    "/Register-2.jpg.jpg",
+    "/Register-3.jpg.avif"
   ];
 
   useEffect(() => {
@@ -104,6 +107,11 @@ export default function Register() {
         setError('A passport photograph is required to create an identity pass.');
         return;
     }
+
+    if (role === 'student' && !email.toLowerCase().includes('students.jabu')) {
+        setError('Students must use a valid school email (e.g., username@students.jabu.edu.ng).');
+        return;
+    }
     
     setLoading(true);
     setError('');
@@ -133,6 +141,10 @@ export default function Register() {
         profileData.matric = matric;
         profileData.level = level;
         profileData.department = department;
+        profileData.collegeFaculty = collegeFaculty;
+        profileData.studentType = studentType;
+        profileData.phone = phone;
+        profileData.parentPhone = parentPhone;
       } else if (role === 'teaching_staff' || role === 'non_teaching_staff') {
         profileData.department = department;
         profileData.staffId = matric; // Reusing matric field for Staff ID UI
@@ -334,12 +346,33 @@ export default function Register() {
                             </select>
                           </div>
                         </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Department / College</label>
-                          <div className="relative group">
-                            <BookOpen className="w-4 h-4 absolute left-4 top-3 text-slate-400 group-focus-within:text-brand-500 transition-colors" />
-                            <input type="text" required value={department} onChange={e => setDepartment(e.target.value)} placeholder="e.g. Computer Science" className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                          <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">College / Faculty</label>
+                            <input type="text" required value={collegeFaculty} onChange={e => setCollegeFaculty(e.target.value)} placeholder="e.g. College of Natural Sciences" className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all" />
                           </div>
+                          <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Department</label>
+                            <input type="text" required value={department} onChange={e => setDepartment(e.target.value)} placeholder="e.g. Computer Science" className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all" />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                          <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Student Type</label>
+                            <select required value={studentType} onChange={e => setStudentType(e.target.value)} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                              <option value="REGULAR">Regular</option>
+                              <option value="DE">Direct Entry (DE)</option>
+                              <option value="JUPEB">JUPEB</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Phone Number</label>
+                            <input type="tel" required value={phone} onChange={e => setPhone(e.target.value)} placeholder="080..." className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all" />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Parent / Guardian Phone</label>
+                          <input type="tel" required value={parentPhone} onChange={e => setParentPhone(e.target.value)} placeholder="080..." className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all" />
                         </div>
                       </>
                     )}

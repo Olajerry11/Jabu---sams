@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
-import { KeyRound, Mail, AlertCircle, ArrowRight, User } from 'lucide-react';
+import { KeyRound, Mail, AlertCircle, ArrowRight } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -17,10 +17,16 @@ export default function Login() {
   const { showToast } = useToast();
   const { userData } = useAuth();
 
+  useEffect(() => {
+    if (userData) {
+      navigate('/');
+    }
+  }, [userData, navigate]);
+
   const carouselImages = [
-    "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop",
-    "https://plus.unsplash.com/premium_photo-1661909267160-c368ffb34da5?q=80&w=2070&auto=format&fit=crop"
+    "/Login-1.jpg.jpg",
+    "/Login-2.jpg.jpg",
+    "/Login-3.jpg.jpg"
   ];
 
   useEffect(() => {
@@ -114,36 +120,6 @@ export default function Login() {
         {/* Right Side - Form / Status */}
         <div className="p-8 sm:p-12 lg:p-16 flex flex-col justify-center relative z-10">
 
-          {userData ? (
-            <div className="text-center animate-fade-in py-8">
-              <div className="w-24 h-24 rounded-full bg-brand-50 mx-auto mb-6 flex items-center justify-center border-4 border-white shadow-lg overflow-hidden relative">
-                 {userData.photoUrl ? (
-                    <img src={userData.photoUrl} alt="Profile" className="w-full h-full object-cover" />
-                 ) : (
-                    <User className="w-10 h-10 text-brand-300" />
-                 )}
-              </div>
-              <h2 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Active Identity Detected</h2>
-              <p className="mt-2 text-slate-500 font-medium">Welcome back, <span className="text-slate-900 font-bold">{userData.name || userData.email}</span>.</p>
-              
-              <button
-                onClick={() => navigate('/')}
-                className="group mt-10 w-full flex items-center justify-center py-4 px-4 rounded-xl text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 hover:shadow-lg hover:shadow-brand-500/25 active:scale-[0.98] transition-all duration-200"
-              >
-                Continue to My Pass
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </button>
-              
-              <div className="mt-6">
-                <p className="text-xs text-slate-400 font-medium tracking-wide">
-                  Signing in as a different user? 
-                  <button 
-                  onClick={() => auth.signOut()}
-                  className="ml-1 text-slate-600 hover:text-slate-900 font-bold hover:underline transition-colors focus:outline-none">Sign Out</button>
-                </p>
-              </div>
-            </div>
-          ) : (
             <div className="animate-fade-in">
               <div className="mb-10 text-center lg:text-left">
                 <h2 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Welcome back</h2>
@@ -228,7 +204,6 @@ export default function Login() {
                 </p>
               </div>
             </div>
-          )}
 
         </div>
       </div>

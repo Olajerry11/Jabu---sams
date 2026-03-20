@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, UserCheck, UserX, User, MessageSquare, Wifi, WifiOff, CheckCircle2, XCircle, Clock, AlertTriangle } from 'lucide-react';
+import { Search, UserCheck, UserX, User, MessageSquare, Wifi, WifiOff, CheckCircle2, XCircle, Clock, AlertTriangle, X } from 'lucide-react';
 import { collection, onSnapshot, doc, updateDoc, query, orderBy, getDoc } from 'firebase/firestore';
 import { getDownloadURL, ref } from 'firebase/storage';
 import { db, storage } from '../firebase';
@@ -46,6 +46,7 @@ export default function AdminDashboard() {
   const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('users');
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const [users, setUsers] = useState<UserData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -288,7 +289,7 @@ export default function AdminDashboard() {
                     </tr>
                   ) : (
                     filteredUsers.map((user) => (
-                      <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
+                      <tr key={user.id} onClick={() => setSelectedUser(user)} className="hover:bg-slate-50/50 transition-colors group cursor-pointer">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 overflow-hidden shrink-0 group-hover:bg-white group-hover:border-slate-300 transition-colors">
@@ -329,7 +330,7 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <button
-                            onClick={() => toggleStatus(user.id, user.status)}
+                            onClick={(e) => { e.stopPropagation(); toggleStatus(user.id, user.status); }}
                             className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm active:scale-95 ${
                               user.status === 'active'
                                 ? 'bg-white text-rose-600 border border-rose-200 hover:bg-rose-50 hover:border-rose-300'
@@ -493,6 +494,94 @@ export default function AdminDashboard() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ==================== USER DETAILS MODAL ==================== */}
+      {selectedUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setSelectedUser(null)}></div>
+          <div className="bg-white w-full max-w-lg rounded-3xl premium-shadow overflow-hidden relative z-10 animate-slide-up">
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-slate-900 leading-none">Identity Details</h3>
+              <button onClick={() => setSelectedUser(null)} className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-100">
+                  <div className="w-20 h-20 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 text-slate-400">
+                  {(selectedUser as any).photoUrl || (selectedUser as any).photoURL ? (
+                      <img src={(selectedUser as any).photoUrl || (selectedUser as any).photoURL} alt="Passport Profile" className="w-full h-full object-cover" />
+                  ) : (
+                      <User className="w-10 h-10" />
+                  )}
+                  </div>
+                  <div>
+                    <h4 className="text-2xl font-bold text-slate-900">{selectedUser.name || 'Unknown User'}</h4>
+                    <p className="text-sm font-medium text-slate-500 mt-1">{selectedUser.email}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                        <span className="inline-flex items-center px-2 py-1 bg-slate-100 border border-slate-200 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">{selectedUser.role.replace(/_/g, ' ')}</span>
+                        <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
+                            selectedUser.status === 'active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                            selectedUser.status === 'suspended' ? 'bg-rose-50 text-rose-700 border border-rose-200' :
+                            'bg-amber-50 text-amber-700 border border-amber-200'
+                        }`}>
+                            <span className={`h-1.5 w-1.5 rounded-full ${selectedUser.status === 'active' ? 'bg-emerald-500' : selectedUser.status === 'suspended' ? 'bg-rose-500' : 'bg-amber-500'}`}></span>
+                            {selectedUser.status}
+                        </span>
+                    </div>
+                  </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Identifier</p>
+                    <p className="text-sm font-semibold text-slate-900">{selectedUser.matric || (selectedUser as any).staffId || 'N/A'}</p>
+                  </div>
+                  {(selectedUser as any).level && (
+                    <div>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Level</p>
+                        <p className="text-sm font-semibold text-slate-900">{(selectedUser as any).level}</p>
+                    </div>
+                  )}
+                  {(selectedUser as any).department && (
+                    <div>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Department</p>
+                        <p className="text-sm font-semibold text-slate-900">{(selectedUser as any).department}</p>
+                    </div>
+                  )}
+                  {(selectedUser as any).phone && (
+                    <div>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Phone</p>
+                        <p className="text-sm font-semibold text-slate-900">{(selectedUser as any).phone}</p>
+                    </div>
+                  )}
+                  {(selectedUser as any).parentPhone && (
+                    <div>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Parent Phone</p>
+                        <p className="text-sm font-semibold text-slate-900">{(selectedUser as any).parentPhone}</p>
+                    </div>
+                  )}
+                  {(selectedUser as any).collegeFaculty && (
+                    <div>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">College/Faculty</p>
+                        <p className="text-sm font-semibold text-slate-900">{(selectedUser as any).collegeFaculty}</p>
+                    </div>
+                  )}
+                  {(selectedUser as any).studentType && (
+                    <div>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Student Type</p>
+                        <p className="text-sm font-semibold text-slate-900">{(selectedUser as any).studentType}</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Added On</p>
+                    <p className="text-sm font-semibold text-slate-900">{(selectedUser as any).createdAt ? new Date((selectedUser as any).createdAt).toLocaleDateString() : 'N/A'}</p>
+                  </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

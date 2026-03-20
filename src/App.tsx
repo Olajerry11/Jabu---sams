@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { QrCode, ScanLine, LayoutDashboard, LogOut } from 'lucide-react';
 import { useAuth } from './context/AuthContext';
@@ -89,12 +89,60 @@ function NavLinks() {
   );
 }
 
+function StartupAnimation({ onComplete }: { onComplete: () => void }) {
+  const [fadeOut, setFadeOut] = useState(false);
+
+  useEffect(() => {
+    const fadeTimer = setTimeout(() => {
+      setFadeOut(true);
+    }, 3000); // start fade out at 3s
+
+    const finishTimer = setTimeout(() => {
+      onComplete();
+    }, 3500); // unmount at 3.5s
+
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(finishTimer);
+    };
+  }, [onComplete]);
+
+  return (
+    <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900 text-white transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
+      <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 p-2 mb-8 animate-bounce">
+         <img src="/jabu-logo.png" alt="JABU Logo" className="w-full h-full object-contain" />
+      </div>
+      <h1 className="text-3xl md:text-5xl font-display font-black tracking-tight text-center mb-4 px-4 whitespace-nowrap leading-tight animate-fade-in">
+        Welcome to <span className="text-brand-400">JABU</span>
+      </h1>
+      <p className="text-sm md:text-xl font-medium text-slate-300 text-center max-w-lg px-6 animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
+        The first Entrepreneurial University in Nigeria
+      </p>
+      
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-2">
+        <div className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></div>
+        <div className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+        <div className="w-2 h-2 rounded-full bg-brand-300 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const { userData } = useAuth(); // Needed to conditionally render nav
+  const [showAnimation, setShowAnimation] = useState(() => {
+    return !sessionStorage.getItem('hasSeenJabuAnimation');
+  });
+
+  const handleAnimationComplete = () => {
+    sessionStorage.setItem('hasSeenJabuAnimation', 'true');
+    setShowAnimation(false);
+  };
   
   return (
     <ToastProvider>
       <Router>
+        {showAnimation && <StartupAnimation onComplete={handleAnimationComplete} />}
         <div className="min-h-[100dvh] bg-slate-50 font-sans flex flex-col selection:bg-brand-500/30 selection:text-brand-900">
           
           {/* Global Navigation - Only render when logged in */}
