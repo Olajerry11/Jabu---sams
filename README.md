@@ -1,61 +1,90 @@
-# JABU SAMS - Digital Campus Identity System
+# JABU SAMS — Campus Identity & Access Management System
 
-JABU SAMS (Student Access Management System) is a secure and modern full-stack web application designed for generating, managing, and verifying digital identity passes for students, staff, and guests at Joseph Ayo Babalola University.
+**Joseph Ayo Babalola University, Ikeji-Arakeji, Osun State**
+*The First Entrepreneurial University in Nigeria*
 
-## 🚀 Key Features
+---
 
-- **Role-Based Access Control (RBAC):** Users are securely routed based on their roles (Student, Admin, Security, Teaching Staff, etc.).
-- **Dynamic Digital IDs:** Students and staff receive a generated digital ID card complete with their passport photograph and personal details.
-- **Auto-Refreshing QR Codes:** Generates secure Time-Based One-Time Passwords (TOTP) embedded within QR codes that refresh every 30 seconds to prevent screenshot spoofing.
-- **Integrated QR Scanner:** Built-in scanner dashboard for Security personnel to instantly read and verify passes at campus checkpoints.
-- **Admin Dashboard:** Administrators can view all registered identities, search records, and instantly suspend/activate access for any user.
-- **Responsive & Premium UI:** Built with Tailwind CSS, featuring glassmorphism effects, dynamic animated background carousels, and optimized layouts for both desktop and mobile devices.
+## Overview
 
-## 🛠 Technology Stack
+JABU SAMS is a full-stack Progressive Web App (PWA) for managing digital campus identities, QR-based gate passes, and administrative oversight of all campus users.
 
-- **Frontend Framework:** React 19 + TypeScript
-- **Build Tool:** Vite
-- **Styling:** Tailwind CSS + Lucide React (Icons)
-- **Backend & Database:** Firebase (Authentication, Cloud Firestore)
-- **File Storage:** Firebase Storage (for passport image uploads)
-- **Routing:** React Router DOM (HashRouter)
-- **Utilities:** HTML5-Qrcode (Scanner), React-QR-Code, HTML2Canvas.
+## Features
 
-## 📦 Local Setup & Installation
+| Feature | Description |
+|---|---|
+| 🎬 Startup Animation | Typewriter animation with logo roll-in on first load |
+| 🆔 Digital ID Pass | QR code refreshes every 60 seconds per student |
+| 👤 Role-Based Routing | Students, Staff, Security, Admin get different dashboards |
+| 🔐 Admin Dashboard | View all users, manage access, approve profile change requests |
+| 📷 Passport Photos | Uploaded at registration, compressed & stored in Firebase Storage |
+| 🔍 QR Scanner | Security officers scan student passes in real time |
+| 📝 Registration | Full form with college/faculty & department dropdowns |
+| ♻️ Change Requests | Students request profile edits; admins approve/reject |
+| 🚪 Gate Pass Requests | Students alert security before leaving campus |
+| 🆘 Help Button | Floating contextual help on every page |
+| 📱 Mobile Optimised | Responsive layout, compressed images |
 
-1. **Clone the repository and install dependencies:**
-   ```bash
-   npm install
-   ```
+## Roles
 
-2. **Firebase Configuration:**
-   Ensure you have configured your Firebase project. The existing configuration is located in `src/firebase.ts`. If setting up a new Firebase environment, ensure Authentication (Email/Password), Firestore, and Storage are all enabled.
+| Role | Access |
+|---|---|
+| `student` | Digital ID card, QR code, gate pass requests, change requests |
+| `teaching_staff` | Digital ID card, change requests |
+| `non_teaching_staff` | Digital ID card, change requests |
+| `security` | QR scanner, luggage photo uploads |
+| `admin` | Full admin dashboard — all users, change requests, security status |
+| `food_vendor` / `camp_guest` | Digital ID card only |
 
-3. **Start the Development Server:**
-   ```bash
-   npm run dev
-   ```
-   *The app will be available at `http://localhost:5173/` by default.*
+## Tech Stack
 
-## 🏗 Build & Deployment
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS v4
+- **Backend**: Firebase (Auth, Firestore, Storage)
+- **Routing**: React Router v6 (HashRouter for GitHub Pages)
+- **QR Code**: `react-qr-code`
+- **Icons**: Lucide React
+- **Deployment**: GitHub Pages via GitHub Actions
 
-To build the project for production, run:
+## Getting Started (Local)
+
 ```bash
-npm run build
+npm install
+npm run dev
 ```
 
-### Vercel Deployment
-This application is configured as a Single Page Application (SPA). To prevent "404 Not Found" or blank screen errors on refresh, a `vercel.json` file is included at the root directory which correctly proxies all routing requests back to `index.html`.
-- Run `npm run build` safely directly on the Vercel dashboard.
+Open [http://localhost:5173](http://localhost:5173)
 
-## 📂 Project Structure
+## Environment Variables
 
-- `src/components/Login.tsx` & `Register.tsx`: Secure onboarding flows with dynamic mobile-responsive image carousels.
-- `src/components/StudentCard.tsx`: The primary dashboard for students. Generates the downloadable digital Identity Pass and rotating QR token.
-- `src/components/Scanner.tsx`: Intended for Security roles to read tokens.
-- `src/components/AdminDashboard.tsx`: Data-table interface for Admin roles to manage system access.
-- `src/context/AuthContext.tsx`: Manages active user states and queries Firestore for user-role definitions upon login.
+Create a `.env` file:
 
-## 🛡️ Security Notes
-- Passwords must be at least 6 characters long.
-- Suspended users are immediately flagged defensively when their QR codes are scanned, or actively blocked by real-time Firestore listeners if they attempt to view their `StudentCard`.
+```env
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_STORAGE_BUCKET=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
+```
+
+## Deployment (GitHub Pages)
+
+Pushing to `main` triggers the GitHub Actions workflow which:
+1. Installs dependencies
+2. Builds with `VITE_GH_PAGES=true` (sets base URL to `/Jabu---sams/`)
+3. Deploys the `dist/` folder to the `gh-pages` branch
+
+## Registration Notes
+
+- **Students** must register with a `@students.jabu.edu.ng` email.
+- **College/Faculty** and **Department** are pre-filled dropdowns with all JABU programmes.
+- Passport photos are compressed to max 400px at 60% JPEG quality before upload.
+
+## Password Reset
+
+The "Forgot Password" page sends a Firebase password reset email. Ensure Firebase Auth has the correct action URL configured in the Firebase Console under **Authentication → Templates**.
+
+---
+
+© Joseph Ayo Babalola University — JABU SAMS

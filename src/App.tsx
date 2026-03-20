@@ -11,6 +11,7 @@ const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 const Login = lazy(() => import('./components/Login'));
 const Register = lazy(() => import('./components/Register'));
 const ForgotPassword = lazy(() => import('./components/ForgotPassword'));
+const HelpButton = lazy(() => import('./components/HelpButton'));
 
 function ProtectedRoute({ children, reqRole }: { children: React.ReactNode, reqRole?: string }) {
   const { userData, loading } = useAuth();
@@ -274,6 +275,11 @@ function App() {
             </Suspense>
           </main>
           
+          {/* Global Floating Help Button */}
+          <Suspense fallback={null}>
+            <HelpButton />
+          </Suspense>
+
           {/* Global Footer */}
           <footer className="bg-white/50 backdrop-blur-md border-t border-slate-200/50 py-6 mt-auto shrink-0 relative z-20">
             <div className="max-w-7xl mx-auto px-4 text-center">

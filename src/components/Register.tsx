@@ -349,12 +349,94 @@ export default function Register() {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                           <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">College / Faculty</label>
-                            <input type="text" required value={collegeFaculty} onChange={e => setCollegeFaculty(e.target.value)} placeholder="e.g. College of Natural Sciences" className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all" />
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">College / Faculty <span className="text-rose-500">*</span></label>
+                            <select required value={collegeFaculty} onChange={e => { setCollegeFaculty(e.target.value); setDepartment(''); }} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                              <option value="" disabled>Select College/Faculty</option>
+                              <option value="College of Natural and Applied Sciences">College of Natural and Applied Sciences</option>
+                              <option value="College of Engineering">College of Engineering</option>
+                              <option value="College of Management and Social Sciences">College of Management and Social Sciences</option>
+                              <option value="College of Law">College of Law</option>
+                              <option value="College of Education">College of Education</option>
+                              <option value="College of Health Sciences">College of Health Sciences</option>
+                              <option value="College of Agriculture">College of Agriculture</option>
+                              <option value="College of Environmental Sciences">College of Environmental Sciences</option>
+                              <option value="College of Arts and Humanities">College of Arts and Humanities</option>
+                            </select>
                           </div>
                           <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Department</label>
-                            <input type="text" required value={department} onChange={e => setDepartment(e.target.value)} placeholder="e.g. Computer Science" className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all" />
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Department <span className="text-rose-500">*</span></label>
+                            <select required value={department} onChange={e => setDepartment(e.target.value)} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all" disabled={!collegeFaculty}>
+                              <option value="" disabled>{collegeFaculty ? 'Select Department' : 'Select College first'}</option>
+                              {collegeFaculty === 'College of Natural and Applied Sciences' && <>
+                                <option>Computer Science</option>
+                                <option>Mathematics</option>
+                                <option>Physics</option>
+                                <option>Chemistry</option>
+                                <option>Biology</option>
+                                <option>Biochemistry</option>
+                                <option>Microbiology</option>
+                                <option>Statistics</option>
+                                <option>Industrial Chemistry</option>
+                              </>}
+                              {collegeFaculty === 'College of Engineering' && <>
+                                <option>Electrical/Electronics Engineering</option>
+                                <option>Civil Engineering</option>
+                                <option>Mechanical Engineering</option>
+                                <option>Agricultural Engineering</option>
+                                <option>Computer Engineering</option>
+                              </>}
+                              {collegeFaculty === 'College of Management and Social Sciences' && <>
+                                <option>Business Administration</option>
+                                <option>Accounting</option>
+                                <option>Economics</option>
+                                <option>Mass Communication</option>
+                                <option>Political Science</option>
+                                <option>Sociology</option>
+                                <option>Banking and Finance</option>
+                                <option>Public Administration</option>
+                                <option>Entrepreneurship</option>
+                              </>}
+                              {collegeFaculty === 'College of Law' && <>
+                                <option>Law</option>
+                              </>}
+                              {collegeFaculty === 'College of Education' && <>
+                                <option>Education/Biology</option>
+                                <option>Education/Chemistry</option>
+                                <option>Education/Physics</option>
+                                <option>Education/Mathematics</option>
+                                <option>Education/Economics</option>
+                                <option>Education/English</option>
+                                <option>Library and Information Science</option>
+                              </>}
+                              {collegeFaculty === 'College of Health Sciences' && <>
+                                <option>Nursing Science</option>
+                                <option>Medical Laboratory Science</option>
+                                <option>Public Health</option>
+                                <option>Physiotherapy</option>
+                                <option>Pharmacy</option>
+                              </>}
+                              {collegeFaculty === 'College of Agriculture' && <>
+                                <option>Animal Science</option>
+                                <option>Crop Science</option>
+                                <option>Agricultural Economics</option>
+                                <option>Food Science and Technology</option>
+                                <option>Fisheries and Aquaculture</option>
+                              </>}
+                              {collegeFaculty === 'College of Environmental Sciences' && <>
+                                <option>Architecture</option>
+                                <option>Estate Management</option>
+                                <option>Urban and Regional Planning</option>
+                                <option>Quantity Surveying</option>
+                                <option>Building Technology</option>
+                              </>}
+                              {collegeFaculty === 'College of Arts and Humanities' && <>
+                                <option>English Language</option>
+                                <option>Yoruba Language</option>
+                                <option>Religious Studies</option>
+                                <option>History and International Studies</option>
+                                <option>Philosophy</option>
+                              </>}
+                            </select>
                           </div>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
