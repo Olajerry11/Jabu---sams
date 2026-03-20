@@ -110,7 +110,7 @@ function StartupAnimation({ onComplete }: { onComplete: () => void }) {
   return (
     <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900 text-white transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
       <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 p-2 mb-8 animate-bounce">
-         <img src="/jabu-logo.png" alt="JABU Logo" className="w-full h-full object-contain" />
+         <img src={`${import.meta.env.BASE_URL}jabu-logo.png`} alt="JABU Logo" className="w-full h-full object-contain" />
       </div>
       <h1 className="text-3xl md:text-5xl font-display font-black tracking-tight text-center mb-4 px-4 whitespace-nowrap leading-tight animate-fade-in">
         Welcome to <span className="text-brand-400">JABU</span>

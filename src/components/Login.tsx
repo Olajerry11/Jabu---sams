@@ -23,10 +23,11 @@ export default function Login() {
     }
   }, [userData, navigate]);
 
+  const base = import.meta.env.BASE_URL;
   const carouselImages = [
-    "/Login-1.jpg.jpg",
-    "/Login-2.jpg.jpg",
-    "/Login-3.jpg.jpg"
+    `${base}Login-1.jpg.jpg`,
+    `${base}Login-2.jpg.jpg`,
+    `${base}Login-3.jpg.jpg`,
   ];
 
   useEffect(() => {
@@ -82,7 +83,7 @@ export default function Login() {
           
           <div className="relative z-10 flex items-center gap-3">
             <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-xl flex items-center justify-center shadow-lg shrink-0 p-1">
-              <img src="/jabu-logo.png" alt="JABU Logo" className="w-full h-full object-contain" />
+              <img src={`${import.meta.env.BASE_URL}jabu-logo.png`} alt="JABU Logo" className="w-full h-full object-contain" />
             </div>
             <div>
               <h1 className="text-xl md:text-2xl font-black text-white tracking-tight leading-none">JABU<span className="text-accent-400">SAMS</span></h1>

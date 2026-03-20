@@ -38,10 +38,11 @@ export default function Register() {
   const [mounted, setMounted] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
 
+  const base = import.meta.env.BASE_URL;
   const carouselImages = [
-    "/Register-1.jpg.jpg",
-    "/Register-2.jpg.jpg",
-    "/Register-3.jpg.avif"
+    `${base}Register-1.jpg.jpg`,
+    `${base}Register-2.jpg.jpg`,
+    `${base}Register-3.jpg.avif`,
   ];
 
   useEffect(() => {
@@ -469,7 +470,7 @@ export default function Register() {
                 <h1 className="text-xl md:text-2xl font-black text-white tracking-tight leading-none">JABU<span className="text-accent-400">SAMS</span></h1>
               </div>
               <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20 p-1">
-                <img src="/jabu-logo.png" alt="JABU Logo" className="w-full h-full object-contain" />
+                <img src={`${import.meta.env.BASE_URL}jabu-logo.png`} alt="JABU Logo" className="w-full h-full object-contain" />
               </div>
             </div>
           </div>

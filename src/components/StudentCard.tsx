@@ -196,7 +196,7 @@ export default function StudentCard() {
               <div className="absolute inset-0 bg-gradient-to-tr from-brand-900/60 to-transparent"></div>
               <div className="relative z-10 flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20 p-1">
-                  <img src="/jabu-logo.png" alt="JABU Logo" className="w-full h-full object-contain" />
+                  <img src={`${import.meta.env.BASE_URL}jabu-logo.png`} alt="JABU Logo" className="w-full h-full object-contain" />
                 </div>
                 <div>
                   <h2 className="m-0 text-xl font-bold tracking-tight leading-none">JABU<span className="text-accent-400">SAMS</span></h2>
