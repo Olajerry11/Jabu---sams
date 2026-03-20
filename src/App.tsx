@@ -90,35 +90,78 @@ function NavLinks() {
 }
 
 function StartupAnimation({ onComplete }: { onComplete: () => void }) {
+  const lines = [
+    'Welcome to Joseph Ayo Babalola University,',
+    'Ikeji-Arakeji, Osun State.',
+    'The First Entrepreneurial University in Nigeria.',
+  ];
+
+  const [displayedLines, setDisplayedLines] = useState(['', '', '']);
+  const [currentLine, setCurrentLine] = useState(0);
+  const [currentChar, setCurrentChar] = useState(0);
   const [fadeOut, setFadeOut] = useState(false);
 
+  // Typewriter tick
   useEffect(() => {
-    const fadeTimer = setTimeout(() => {
-      setFadeOut(true);
-    }, 3000); // start fade out at 3s
+    if (currentLine >= lines.length) return;
 
-    const finishTimer = setTimeout(() => {
-      onComplete();
-    }, 3500); // unmount at 3.5s
+    const target = lines[currentLine];
+    if (currentChar < target.length) {
+      const t = setTimeout(() => {
+        setDisplayedLines(prev => {
+          const next = [...prev];
+          next[currentLine] = target.slice(0, currentChar + 1);
+          return next;
+        });
+        setCurrentChar(c => c + 1);
+      }, 38); // typing speed per character
+      return () => clearTimeout(t);
+    } else {
+      // Move to next line after a short pause
+      const t = setTimeout(() => {
+        setCurrentLine(l => l + 1);
+        setCurrentChar(0);
+      }, 320);
+      return () => clearTimeout(t);
+    }
+  }, [currentLine, currentChar]);
 
-    return () => {
-      clearTimeout(fadeTimer);
-      clearTimeout(finishTimer);
-    };
+  // Auto-dismiss
+  useEffect(() => {
+    const totalChars = lines.reduce((a, b) => a + b.length, 0);
+    const typingMs = totalChars * 38 + lines.length * 320 + 800; // typing + pauses + buffer
+    const fadeTimer = setTimeout(() => setFadeOut(true), typingMs);
+    const doneTimer = setTimeout(() => onComplete(), typingMs + 600);
+    return () => { clearTimeout(fadeTimer); clearTimeout(doneTimer); };
   }, [onComplete]);
 
+  const lineStyles = [
+    'text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight',
+    'text-base sm:text-lg md:text-xl font-semibold text-brand-300',
+    'text-sm sm:text-base md:text-lg font-medium text-slate-400 italic',
+  ];
+
   return (
-    <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900 text-white transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
-      <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 p-2 mb-8 animate-bounce">
-         <img src={`${import.meta.env.BASE_URL}jabu-logo.png`} alt="JABU Logo" className="w-full h-full object-contain" />
+    <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900 text-white transition-opacity duration-600 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
+      {/* Logo */}
+      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 p-2 mb-8 animate-bounce">
+        <img src={`${import.meta.env.BASE_URL}jabu-logo.png`} alt="JABU Logo" className="w-full h-full object-contain" />
       </div>
-      <h1 className="text-3xl md:text-5xl font-display font-black tracking-tight text-center mb-4 px-4 whitespace-nowrap leading-tight animate-fade-in">
-        Welcome to <span className="text-brand-400">JABU</span>
-      </h1>
-      <p className="text-sm md:text-xl font-medium text-slate-300 text-center max-w-lg px-6 animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
-        The first Entrepreneurial University in Nigeria
-      </p>
-      
+
+      {/* Typewriter Text */}
+      <div className="flex flex-col items-center gap-3 px-6 max-w-xl text-center">
+        {lines.map((_, i) => (
+          <p key={i} className={lineStyles[i]}>
+            {displayedLines[i]}
+            {/* Blinking cursor on current active line */}
+            {i === currentLine && currentLine < lines.length && (
+              <span className="inline-block w-[2px] h-[1em] bg-brand-400 ml-0.5 align-middle animate-pulse" />
+            )}
+          </p>
+        ))}
+      </div>
+
+      {/* Dots */}
       <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-2">
         <div className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></div>
         <div className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
