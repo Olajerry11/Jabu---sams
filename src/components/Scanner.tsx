@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import {
   ShieldCheck, ScanLine, XCircle, User, MessageSquare, Clock, CheckCircle2,
-  Upload, Camera, X, Wifi, WifiOff, ImageIcon, MapPin, ChevronDown, Package
+  Upload, Camera, X, WifiOff, ImageIcon, MapPin, ChevronDown, Package
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { db, storage } from '../firebase';

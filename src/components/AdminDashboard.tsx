@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, UserCheck, UserX, User, ShieldAlert, MessageSquare, Wifi, WifiOff, CheckCircle2, XCircle, Clock, AlertTriangle } from 'lucide-react';
+import { Search, UserCheck, UserX, User, MessageSquare, Wifi, WifiOff, CheckCircle2, XCircle, Clock, AlertTriangle } from 'lucide-react';
 import { collection, onSnapshot, doc, updateDoc, query, orderBy, getDoc } from 'firebase/firestore';
 import { getDownloadURL, ref } from 'firebase/storage';
 import { db, storage } from '../firebase';
