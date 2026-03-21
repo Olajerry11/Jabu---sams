@@ -8,8 +8,11 @@ export default function ResetPassword() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const oobCode = searchParams.get('oobCode');
-  const mode = searchParams.get('mode');
+  // Firebase Auth appends query params BEFORE the hash in the URL.
+  // We check both window.location.search and React Router's searchParams.
+  const urlParams = new URLSearchParams(window.location.search);
+  const oobCode = urlParams.get('oobCode') || searchParams.get('oobCode');
+  const mode = urlParams.get('mode') || searchParams.get('mode');
 
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
