@@ -9,7 +9,9 @@ import { useToast } from '../context/ToastContext';
 interface UserData {
   id: string;
   name?: string;
-  email: string;
+  surname?: string;
+  firstName?: string;
+  email?: string;
   matric?: string;
   role: string;
   photoUrl?: string;
@@ -56,7 +58,9 @@ export default function AdminDashboard() {
 
   // Fetch real-time users from Firestore
   useEffect(() => {
-    const q = query(collection(db, 'users'), orderBy('email'));
+    // We intentionally do not use orderBy('email') here because it will silently exclude 
+    // any legacy or test users who were created without an email field.
+    const q = query(collection(db, 'users'));
     const unsub = onSnapshot(q, (snapshot) => {
       const userList: UserData[] = [];
       snapshot.forEach((doc) => {
@@ -151,8 +155,10 @@ export default function AdminDashboard() {
 
   const filteredUsers = users.filter(user =>
     (user.name?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+    (user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+    (user.surname?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
     (user.matric?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    (user.email?.toLowerCase().includes(searchTerm.toLowerCase()) || '')
   );
 
   const stats = {
@@ -300,8 +306,10 @@ export default function AdminDashboard() {
                               )}
                             </div>
                             <div>
-                              <p className="font-bold text-slate-900 text-base">{user.name || 'Unknown User'}</p>
-                              <p className="text-xs text-slate-500 font-medium mt-0.5">{user.email}</p>
+                              <p className="font-bold text-slate-900 text-base">
+                                {user.firstName || user.surname || (user.name ? user.name.split(' ')[0] : 'Unknown User')}
+                              </p>
+                              <p className="text-xs text-slate-500 font-medium mt-0.5">{user.email || 'No Email Provided'}</p>
                             </div>
                           </div>
                         </td>
