@@ -30,6 +30,7 @@ export default function StudentCard() {
 
   // ── Exeat Modal State ─────────────────────────────────────────────────────
   const [exeatModalOpen, setExeatModalOpen] = useState(false);
+  const [exeatType, setExeatType] = useState('Gate Pass (Leaving Campus)');
   const [exeatReason, setExeatReason] = useState('');
   const [submittingExeat, setSubmittingExeat] = useState(false);
 
@@ -99,12 +100,14 @@ export default function StudentCard() {
         userRole: userData?.role,
         userMatric: userData?.matric || (userData as any)?.staffId || 'N/A',
         userPhoto: (userData as any).photoUrl || (userData as any).photoURL || '',
+        type: exeatType,
         reason: exeatReason,
         status: 'pending',
         timestamp: serverTimestamp(),
       });
-      showToast('Gate pass request sent to Security!', 'success');
+      showToast('Request sent to Security!', 'success');
       setExeatModalOpen(false);
+      setExeatType('Gate Pass (Leaving Campus)');
       setExeatReason('');
     } catch (error) {
       console.error(error);
@@ -175,7 +178,7 @@ export default function StudentCard() {
               className="flex items-center gap-2 px-5 py-3 bg-white border border-brand-200 shadow-sm shadow-brand-500/10 text-brand-700 rounded-2xl font-bold hover:bg-brand-50 hover:border-brand-300 transition-all active:scale-95 text-sm"
             >
               <MessageSquare className="w-4 h-4" />
-              Request Gate Pass
+              Access & Deliveries
             </button>
             <button
               onClick={() => setChangeModalOpen(true)}
@@ -215,8 +218,8 @@ export default function StudentCard() {
             {/* User Profile */}
             <div className="px-6 relative flex flex-col items-center">
               <div className="w-24 h-24 bg-white rounded-3xl mx-auto -mt-12 relative z-20 shadow-xl border border-slate-100 flex items-center justify-center text-slate-300 overflow-hidden group">
-                {(userData as any).photoUrl ? (
-                  <img src={(userData as any).photoUrl} alt="Passport Profile" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                {((userData as any).photoUrl || (userData as any).photoURL) ? (
+                  <img src={((userData as any).photoUrl || (userData as any).photoURL)} alt="Passport Profile" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                   <User className="w-10 h-10 group-hover:scale-110 transition-transform duration-300" />
                 )}
@@ -284,7 +287,7 @@ export default function StudentCard() {
           <div className="bg-white w-full max-w-md rounded-3xl premium-shadow overflow-hidden relative z-10 animate-slide-up">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-bold text-slate-900 leading-none">Request Gate Pass</h3>
+                <h3 className="text-xl font-bold text-slate-900 leading-none">Access Request</h3>
                 <p className="text-xs text-slate-500 mt-1 font-medium">Send a log directly to campus security.</p>
               </div>
               <button onClick={() => setExeatModalOpen(false)} disabled={submittingExeat} className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors">
@@ -292,14 +295,29 @@ export default function StudentCard() {
               </button>
             </div>
             <form onSubmit={handleSubmitExeat} className="p-6">
+              <div className="mb-4">
+                <label className="block text-sm font-bold text-slate-700 mb-2">Request Type</label>
+                <div className="relative">
+                  <select
+                    value={exeatType}
+                    onChange={(e) => setExeatType(e.target.value)}
+                    className="w-full appearance-none px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all pr-10"
+                  >
+                    <option value="Gate Pass (Leaving Campus)">Gate Pass (Leaving Campus)</option>
+                    <option value="Delivery Collection (At Gate)">Delivery Collection (At Gate)</option>
+                    <option value="Send Person for Delivery">Send Person for Delivery</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                </div>
+              </div>
               <div className="mb-6">
-                <label className="block text-sm font-bold text-slate-700 mb-2">Reason for leaving</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Details / Reason <span className="text-rose-500">*</span></label>
                 <textarea
                   required
                   rows={3}
                   value={exeatReason}
                   onChange={(e) => setExeatReason(e.target.value)}
-                  placeholder="e.g. Medical checkup at Federal Medical Center, Parent pickup for weekend."
+                  placeholder="e.g. Need to collect a package at the Main Gate."
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none resize-none transition-all"
                 ></textarea>
               </div>

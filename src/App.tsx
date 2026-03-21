@@ -288,6 +288,9 @@ function App() {
               <p className="text-xs font-semibold text-slate-400 tracking-wide uppercase">
                 &copy; {new Date().getFullYear()} Joseph Ayo Babalola University
               </p>
+              <p className="text-[10px] font-bold text-slate-300 mt-2 uppercase tracking-widest">
+                Developed by <span className="text-brand-500">Olajerry Tech</span>
+              </p>
             </div>
           </footer>
 
