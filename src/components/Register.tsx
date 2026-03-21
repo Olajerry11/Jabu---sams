@@ -295,7 +295,7 @@ export default function Register() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">3rd Name</label>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Other Name</label>
                       <div className="relative group">
                         <input
                           type="text" value={otherName} onChange={e => setOtherName(e.target.value)}
