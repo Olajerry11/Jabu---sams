@@ -15,7 +15,9 @@ export default function Register() {
   const [error, setError] = useState('');
   
   // Form State
-  const [name, setName] = useState('');
+  const [surname, setSurname] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [otherName, setOtherName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<Role>('student');
@@ -128,8 +130,12 @@ export default function Register() {
       const photoURL = await getDownloadURL(imageRef);
 
       // 3. Prepare dynamic Firestore profile data
+      const fullName = `${surname.toUpperCase()} ${firstName} ${otherName}`.trim();
       const profileData: any = {
-        name,
+        name: fullName,
+        surname: surname.toUpperCase(),
+        firstName,
+        otherName,
         email,
         role,
         photoUrl: photoURL,
@@ -161,7 +167,7 @@ export default function Register() {
 
       // 4. Execute Profile Update and Firestore Database Save concurrently for speed
       await Promise.all([
-         updateProfile(user, { displayName: name, photoURL }),
+         updateProfile(user, { displayName: fullName, photoURL }),
          setDoc(doc(db, 'users', user.uid), profileData)
       ]);
       
@@ -262,33 +268,55 @@ export default function Register() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Full Name</label>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Surname <span className="text-rose-500">*</span></label>
                       <div className="relative group">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-600 transition-colors">
                           <User className="w-5 h-5" />
                         </div>
                         <input
-                          type="text" required value={name} onChange={e => setName(e.target.value)}
+                          type="text" required value={surname} onChange={e => setSurname(e.target.value)}
                           className="block w-full pl-12 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:bg-white transition-all duration-200"
-                          placeholder="John Doe"
+                          placeholder="Surname"
                         />
                       </div>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">First Name <span className="text-rose-500">*</span></label>
                       <div className="relative group">
-                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-600 transition-colors">
-                          <Mail className="w-5 h-5" />
-                        </div>
                         <input
-                          type="email" required value={email} onChange={e => setEmail(e.target.value)}
-                          className="block w-full pl-12 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:bg-white transition-all duration-200"
-                          placeholder="jdoe@jabu.edu.ng"
+                          type="text" required value={firstName} onChange={e => setFirstName(e.target.value)}
+                          className="block w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:bg-white transition-all duration-200"
+                          placeholder="First Name"
                         />
                       </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">3rd Name</label>
+                      <div className="relative group">
+                        <input
+                          type="text" value={otherName} onChange={e => setOtherName(e.target.value)}
+                          className="block w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:bg-white transition-all duration-200"
+                          placeholder="Other Name"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-600 transition-colors">
+                        <Mail className="w-5 h-5" />
+                      </div>
+                      <input
+                        type="email" required value={email} onChange={e => setEmail(e.target.value)}
+                        className="block w-full pl-12 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:bg-white transition-all duration-200"
+                        placeholder="jdoe@jabu.edu.ng"
+                      />
                     </div>
                   </div>
 

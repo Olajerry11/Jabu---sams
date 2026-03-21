@@ -12,6 +12,7 @@ const Login = lazy(() => import('./components/Login'));
 const Register = lazy(() => import('./components/Register'));
 const ForgotPassword = lazy(() => import('./components/ForgotPassword'));
 const HelpButton = lazy(() => import('./components/HelpButton'));
+const ResetPassword = lazy(() => import('./components/ResetPassword'));
 
 function ProtectedRoute({ children, reqRole }: { children: React.ReactNode, reqRole?: string }) {
   const { userData, loading } = useAuth();
@@ -232,7 +233,7 @@ function App() {
                   {/* Branding */}
                   <div className="flex items-center gap-3 shrink-0">
                     <div className="w-10 h-10 bg-white shadow-sm border border-slate-100 rounded-xl flex items-center justify-center p-1">
-                       <img src="/jabu-logo.png" alt="JABU Logo" className="w-full h-full object-contain" />
+                       <img src={`${import.meta.env.BASE_URL}jabu-logo.png`} alt="JABU Logo" className="w-full h-full object-contain" />
                     </div>
                     <div>
                       <h1 className="text-xl font-display font-black text-slate-900 tracking-tight leading-none">
@@ -254,7 +255,7 @@ function App() {
                 <div className="flex flex-col items-center gap-4 animate-fade-in">
                    <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center relative premium-shadow">
                      <div className="absolute inset-0 rounded-2xl border-2 border-brand-500/20 border-t-brand-600 animate-spin"></div>
-                     <img src="/jabu-logo-app.png" alt="Loading" className="w-6 h-6 object-contain opacity-50" />
+                     <img src={`${import.meta.env.BASE_URL}jabu-logo-app.png`} alt="Loading" className="w-6 h-6 object-contain opacity-50" />
                    </div>
                    <p className="text-sm font-bold tracking-widest text-slate-400 uppercase">Loading Interface...</p>
                 </div>
@@ -265,6 +266,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 
                 {/* Protected Routes */}
                 {/* "/" is role-aware: admin→/admin, security→/scanner, others→StudentCard */}
