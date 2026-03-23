@@ -10,7 +10,6 @@ import {
   doc, getDoc, collection, addDoc, serverTimestamp, query, orderBy,
   onSnapshot, updateDoc, setDoc, getDocs, where, limit, Timestamp
 } from 'firebase/firestore';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useToast } from '../context/ToastContext';
 
 interface ExeatRequest {
@@ -58,7 +57,7 @@ export default function Scanner() {
   const [isScanning, setIsScanning] = useState(false);
 
   // Main Gate: luggage upload state
-  const [luggageFile, setLuggageFile] = useState<File | null>(null);
+  const [luggageDataUrl, setLuggageDataUrl] = useState<string | null>(null);
   const [luggagePreview, setLuggagePreview] = useState<string | null>(null);
   const [uploadingLuggage, setUploadingLuggage] = useState(false);
   const [luggageUploaded, setLuggageUploaded] = useState(false);
@@ -141,18 +140,29 @@ export default function Scanner() {
     setPreClearanceLogs(null);
     try {
       // Look for a luggage_log for this student in the past 24 hours
-      const since = Timestamp.fromMillis(Date.now() - 24 * 60 * 60 * 1000);
+      const sinceMillis = Date.now() - 24 * 60 * 60 * 1000;
       const q = query(
         collection(db, 'luggage_logs'),
-        where('studentUid', '==', studentUid),
-        where('timestamp', '>=', since),
-        orderBy('timestamp', 'desc'),
-        limit(5)
+        where('studentUid', '==', studentUid)
       );
       const snap = await getDocs(q);
+      
       const logs: LuggageLog[] = [];
-      snap.forEach((d) => logs.push({ id: d.id, ...d.data() } as LuggageLog));
-      setPreClearanceLogs(logs);
+      snap.forEach((d) => {
+         const data = d.data();
+         const logMillis = data.timestamp ? data.timestamp.toMillis() : Date.now();
+         if (logMillis >= sinceMillis) {
+            logs.push({ id: d.id, ...data } as LuggageLog);
+         }
+      });
+      
+      logs.sort((a, b) => {
+         const timeA = a.timestamp ? a.timestamp.toMillis() : Date.now();
+         const timeB = b.timestamp ? b.timestamp.toMillis() : Date.now();
+         return timeB - timeA;
+      });
+
+      setPreClearanceLogs(logs.slice(0, 5));
     } catch (err) {
       console.error(err);
       setPreClearanceLogs([]);
@@ -220,7 +230,7 @@ export default function Scanner() {
       });
 
       // Reset luggage state for new scan
-      setLuggageFile(null);
+      setLuggageDataUrl(null);
       setLuggagePreview(null);
       setLuggageUploaded(false);
       setPreClearanceLogs(null);
@@ -260,7 +270,7 @@ export default function Scanner() {
 
   const resetScanner = () => {
     setScanResult({ status: null, message: '' });
-    setLuggageFile(null);
+    setLuggageDataUrl(null);
     setLuggagePreview(null);
     setLuggageUploaded(false);
     setPreClearanceLogs(null);
@@ -272,21 +282,50 @@ export default function Scanner() {
   const handleLuggageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setLuggageFile(file);
+    
+    // Quick compression to speed up the luggage upload
     const reader = new FileReader();
-    reader.onload = () => setLuggagePreview(reader.result as string);
+    reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_SIZE = 800; // Large enough for detail, small enough for fast upload
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+                if (width > MAX_SIZE) {
+                    height *= MAX_SIZE / width;
+                    width = MAX_SIZE;
+                }
+            } else {
+                if (height > MAX_SIZE) {
+                    width *= MAX_SIZE / height;
+                    height = MAX_SIZE;
+                }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.drawImage(img, 0, 0, width, height);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                setLuggageDataUrl(dataUrl);
+                setLuggagePreview(dataUrl);
+            }
+        };
+        img.src = event.target?.result as string;
+    };
     reader.readAsDataURL(file);
   };
 
   const handleLuggageUpload = async () => {
-    if (!luggageFile || !scanResult.studentUid) return;
+    if (!luggageDataUrl || !scanResult.studentUid) return;
     setUploadingLuggage(true);
     try {
-      const timestamp = Date.now();
-      const path = `luggage/${scanResult.studentUid}/${timestamp}.jpg`;
-      const fileRef = storageRef(storage, path);
-      await uploadBytes(fileRef, luggageFile);
-      const imageUrl = await getDownloadURL(fileRef);
+      // Bypass Firebase Storage completely to avoid billing/CORS issues!
+      const imageUrl = luggageDataUrl;
 
       await addDoc(collection(db, 'luggage_logs'), {
         studentUid: scanResult.studentUid,
@@ -496,7 +535,7 @@ export default function Scanner() {
                       <div className="relative mb-4 group w-fit mx-auto rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
                         <img src={luggagePreview} alt="Luggage preview" className="max-h-48 rounded-2xl object-cover w-full" />
                         <button
-                          onClick={() => { setLuggageFile(null); setLuggagePreview(null); }}
+                          onClick={() => { setLuggageDataUrl(null); setLuggagePreview(null); }}
                           className="absolute top-2 right-2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-slate-200 text-slate-500 hover:bg-rose-50 hover:text-rose-500 transition-colors shadow-sm"
                         >
                           <X className="w-4 h-4" />
@@ -523,7 +562,7 @@ export default function Scanner() {
                     />
 
                     <div className="flex gap-3 flex-wrap">
-                      {luggageFile && (
+                      {luggageDataUrl && (
                         <button
                           onClick={handleLuggageUpload}
                           disabled={uploadingLuggage}
@@ -533,7 +572,7 @@ export default function Scanner() {
                           {uploadingLuggage ? 'Uploading...' : 'Upload & Clear Student'}
                         </button>
                       )}
-                      {!luggageFile && (
+                      {!luggageDataUrl && (
                         <button
                           onClick={() => luggageInputRef.current?.click()}
                           className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-white text-slate-600 font-bold rounded-xl border border-slate-200 hover:bg-slate-50 transition-all active:scale-95"

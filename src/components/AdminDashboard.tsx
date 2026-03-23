@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, UserCheck, UserX, User, MessageSquare, Wifi, WifiOff, CheckCircle2, XCircle, Clock, AlertTriangle, X } from 'lucide-react';
 import { collection, onSnapshot, doc, updateDoc, query, orderBy, getDoc } from 'firebase/firestore';
-import { getDownloadURL, ref } from 'firebase/storage';
-import { db, storage } from '../firebase';
+import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
@@ -68,15 +67,6 @@ export default function AdminDashboard() {
       });
       setUsers(userList);
       setLoading(false);
-      // Auto-backfill missing photo URLs
-      userList.forEach(async (u) => {
-        if (!u.photoUrl && !u.photoURL) {
-          try {
-            const url = await getDownloadURL(ref(storage, `passports/${u.id}.jpg`));
-            await updateDoc(doc(db, 'users', u.id), { photoUrl: url });
-          } catch (_e) { /* ignore */ }
-        }
-      });
     });
     return () => unsub();
   }, []);

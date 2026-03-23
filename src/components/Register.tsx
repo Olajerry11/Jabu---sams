@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { ref, uploadString, getDownloadURL } from 'firebase/storage';
-import { auth, db, storage } from '../firebase';
+import { auth, db } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
-import { UserPlus, Mail, KeyRound, User, AlertCircle, Building2, ArrowRight, Camera } from 'lucide-react';
+import { UserPlus, Mail, KeyRound, User, AlertCircle, Building2, ArrowRight, Camera, Eye, EyeOff } from 'lucide-react';
 
 type Role = 'student' | 'teaching_staff' | 'non_teaching_staff' | 'camp_guest' | 'food_vendor' | 'security';
 type Level = '100L' | '200L' | '300L' | '400L' | '500L' | 'Postgraduate' | '';
@@ -12,6 +11,7 @@ type Level = '100L' | '200L' | '300L' | '400L' | '500L' | 'Postgraduate' | '';
 export default function Register() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
   const [error, setError] = useState('');
   
   // Form State
@@ -20,6 +20,7 @@ export default function Register() {
   const [otherName, setOtherName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<Role>('student');
   
   // Conditional Fields
@@ -54,6 +55,18 @@ export default function Register() {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  // Prevent accidental refresh while registering
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (loading) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [loading]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -117,17 +130,19 @@ export default function Register() {
     }
     
     setLoading(true);
+    setLoadingMessage('Uploading Passport Photo...');
     setError('');
     
     try {
       // 1. Create Auth Account
+      setLoadingMessage('Creating Credentials...');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      
-      // 2. Upload Passport Photo to Firebase Storage
-      const imageRef = ref(storage, `passports/${user.uid}.jpg`);
-      await uploadString(imageRef, photoDataUrl, 'data_url');
-      const photoURL = await getDownloadURL(imageRef);
+
+      // 2. We bypass Firebase Storage completely and save the base64 string directly into Firestore
+      // The canvas compression already reduced it to ~50-100KB, well under Firestore's 1MB limit.
+      setLoadingMessage('Finalizing Profile...');
+      const photoURL = photoDataUrl;
 
       // 3. Prepare dynamic Firestore profile data
       const fullName = `${surname.toUpperCase()} ${firstName} ${otherName}`.trim();
@@ -166,8 +181,9 @@ export default function Register() {
       }
 
       // 4. Execute Profile Update and Firestore Database Save concurrently for speed
+      setLoadingMessage('Finalizing Profile...');
       await Promise.all([
-         updateProfile(user, { displayName: fullName, photoURL }),
+         updateProfile(user, { displayName: fullName }), // Do not pass large base64 to Auth photoURL
          setDoc(doc(db, 'users', user.uid), profileData)
       ]);
       
@@ -180,6 +196,7 @@ export default function Register() {
       setError(err.message || 'Failed to create account.');
     } finally {
       setLoading(false);
+      setLoadingMessage('');
     }
   };
 
@@ -327,10 +344,17 @@ export default function Register() {
                         <KeyRound className="w-5 h-5" />
                       </div>
                       <input
-                        type="password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)}
-                        className="block w-full pl-12 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:bg-white transition-all duration-200"
+                        type={showPassword ? 'text' : 'password'} required minLength={6} value={password} onChange={e => setPassword(e.target.value)}
+                        className="block w-full pl-12 pr-12 py-3 bg-slate-50/50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:bg-white transition-all duration-200"
                         placeholder="••••••••"
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-brand-600 focus:outline-none transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
                     </div>
                   </div>
 
@@ -537,7 +561,7 @@ export default function Register() {
                       : 'bg-brand-600 hover:bg-brand-700 hover:shadow-lg hover:shadow-brand-500/25 active:scale-[0.98]'
                   }`}
                 >
-                  {loading ? 'Creating Identity...' : (
+                  {loading ? (loadingMessage || 'Creating Identity...') : (
                     <>
                       Complete Registration
                       <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
