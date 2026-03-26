@@ -5,14 +5,29 @@ import type { User } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
-interface UserData {
+export interface UserData {
   uid: string;
   email: string | null;
   role: 'student' | 'teaching_staff' | 'non_teaching_staff' | 'camp_guest' | 'food_vendor' | 'admin' | 'security';
   name?: string;
+  surname?: string;
+  firstName?: string;
+  otherName?: string;
   matric?: string;
+  staffId?: string;
+  level?: string;
+  department?: string;
+  collegeFaculty?: string;
+  studentType?: string;
+  phone?: string;
+  parentPhone?: string;
+  company?: string;
+  purpose?: string;
   photoUrl?: string;
+  photoURL?: string;
   status: 'active' | 'suspended' | 'expired';
+  expiresAt?: string;
+  createdAt?: string;
 }
 
 interface AuthContextType {

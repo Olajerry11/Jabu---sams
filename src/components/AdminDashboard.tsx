@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, UserCheck, UserX, User, MessageSquare, Wifi, WifiOff, CheckCircle2, XCircle, Clock, AlertTriangle, X } from 'lucide-react';
-import { collection, onSnapshot, doc, updateDoc, query, orderBy, getDoc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, query, orderBy, getDoc, type Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -29,7 +29,7 @@ interface ChangeRequest {
   newValue: string;
   reason: string;
   status: 'pending' | 'approved' | 'rejected';
-  timestamp: any;
+  timestamp: Timestamp;
 }
 
 interface SecurityStatus {
@@ -37,7 +37,7 @@ interface SecurityStatus {
   name: string;
   email?: string;
   status: 'online' | 'offline';
-  lastSeen?: any;
+  lastSeen?: Timestamp;
 }
 
 type ActiveTab = 'users' | 'change-requests' | 'security';

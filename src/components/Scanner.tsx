@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import {
   ShieldCheck, ScanLine, XCircle, User, MessageSquare, Clock, CheckCircle2,
   Upload, Camera, X, WifiOff, ImageIcon, MapPin, ChevronDown, Package
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, type UserData } from '../context/AuthContext';
 import { db } from '../firebase';
 import {
   doc, getDoc, collection, addDoc, serverTimestamp, query, orderBy,
@@ -76,7 +76,7 @@ export default function Scanner() {
     const goOnline = () => setDoc(statusRef, {
       uid: userData.uid,
       name: userData.name || 'Security',
-      email: (userData as any).email || '',
+      email: userData.email || '',
       status: 'online',
       lastSeen: serverTimestamp(),
     }, { merge: true });
@@ -92,35 +92,9 @@ export default function Scanner() {
       window.removeEventListener('beforeunload', goOffline);
       goOffline();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userData?.uid]);
+  }, [userData]);
 
-  // ── QR Scanner Init ───────────────────────────────────────────────────────
-  useEffect(() => {
-    let scanner: Html5QrcodeScanner | null = null;
-
-    if (activeTab === 'scanner' && !scanResult.status) {
-      scanner = new Html5QrcodeScanner(
-        'reader',
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        false
-      );
-      scanner.render(
-        (_decodedText: string) => {
-          scanner?.clear();
-          setIsScanning(false);
-          verifyAccess(_decodedText);
-        },
-        (_error: unknown) => { /* ignore */ }
-      );
-      setIsScanning(true);
-    }
-
-    return () => {
-      if (scanner) scanner.clear().catch(() => {});
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, scanResult.status]);
+// Moved useEffect lower to avoid "used before its declaration" error for verifyAccess
 
   // ── Exeat Requests Listener ───────────────────────────────────────────────
   useEffect(() => {
@@ -135,7 +109,7 @@ export default function Scanner() {
   }, [activeTab]);
 
   // ── Check if student was cleared at Main Gate (for Hostel Portal mode) ───
-  const checkMainGateClearance = async (studentUid: string) => {
+  const checkMainGateClearance = useCallback(async (studentUid: string) => {
     setCheckingClearance(true);
     setPreClearanceLogs(null);
     try {
@@ -169,10 +143,10 @@ export default function Scanner() {
     } finally {
       setCheckingClearance(false);
     }
-  };
+  }, []);
 
   // ── Access Verification ───────────────────────────────────────────────────
-  const verifyAccess = async (code: string) => {
+  const verifyAccess = useCallback(async (code: string) => {
     const parts = code.split('-');
     let targetUid = '';
 
@@ -210,7 +184,7 @@ export default function Scanner() {
         }
       }
 
-      const targetData = userDoc.data();
+      const targetData = userDoc.data() as UserData | undefined;
       if (!targetData) {
         setScanResult({ status: 'error', message: 'User profile data is corrupt.' });
         return;
@@ -266,7 +240,33 @@ export default function Scanner() {
       console.error('Verification error:', error);
       setScanResult({ status: 'error', message: 'Database query failed. Try again.' });
     }
-  };
+  }, [userData, scanLocation, showToast, checkMainGateClearance]);
+
+  // ── QR Scanner Init ───────────────────────────────────────────────────────
+  useEffect(() => {
+    let scanner: Html5QrcodeScanner | null = null;
+
+    if (activeTab === 'scanner' && !scanResult.status) {
+      scanner = new Html5QrcodeScanner(
+        'reader',
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        false
+      );
+      scanner.render(
+        (_decodedText: string) => {
+          scanner?.clear();
+          setIsScanning(false);
+          verifyAccess(_decodedText);
+        },
+        (_error: unknown) => { /* ignore */ }
+      );
+      setIsScanning(true);
+    }
+
+    return () => {
+      if (scanner) scanner.clear().catch(() => {});
+    };
+  }, [activeTab, scanResult.status, verifyAccess]);
 
   const resetScanner = () => {
     setScanResult({ status: null, message: '' });

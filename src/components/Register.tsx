@@ -4,6 +4,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserPlus, Mail, KeyRound, User, AlertCircle, Building2, ArrowRight, Camera, Eye, EyeOff } from 'lucide-react';
+import type { UserData } from '../context/AuthContext';
 
 type Role = 'student' | 'teaching_staff' | 'non_teaching_staff' | 'camp_guest' | 'food_vendor' | 'security';
 type Level = '100L' | '200L' | '300L' | '400L' | '500L' | 'Postgraduate' | '';
@@ -54,7 +55,7 @@ export default function Register() {
       setCurrentImage((prev) => (prev + 1) % carouselImages.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [carouselImages.length]);
+  }, [carouselImages]);
 
   // Prevent accidental refresh while registering
   useEffect(() => {
@@ -146,15 +147,15 @@ export default function Register() {
 
       // 3. Prepare dynamic Firestore profile data
       const fullName = `${surname.toUpperCase()} ${firstName} ${otherName}`.trim();
-      const profileData: any = {
+      const profileData: Partial<UserData> = {
         name: fullName,
         surname: surname.toUpperCase(),
         firstName,
         otherName,
         email,
         role,
-        photoUrl: photoURL,
-        status: 'active', // Default to active for demo, in prod an admin might need to approve
+        photoUrl: photoURL || undefined,
+        status: 'active',
         createdAt: new Date().toISOString()
       };
 
@@ -191,9 +192,9 @@ export default function Register() {
       await auth.signOut();
       setRegistrationSuccess(true);
       
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || 'Failed to create account.');
+      setError((err as Error).message || 'Failed to create account.');
     } finally {
       setLoading(false);
       setLoadingMessage('');

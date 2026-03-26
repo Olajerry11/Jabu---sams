@@ -53,11 +53,12 @@ export default function ResetPassword() {
     setStatus('loading');
     setMessage('');
     try {
-      await confirmPasswordReset(auth, oobCode!, newPassword);
+      if (!oobCode) throw new Error('Invalid or expired reset code');
+      await confirmPasswordReset(auth, oobCode, newPassword);
       setStatus('success');
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStatus('error');
-      setMessage(err.message || 'Failed to reset password. Please try again.');
+      setMessage((err as Error).message || 'Failed to reset password. Please try again.');
     }
   };
 

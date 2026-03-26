@@ -98,8 +98,8 @@ export default function StudentCard() {
         userId: userData?.uid,
         userName: userData?.name,
         userRole: userData?.role,
-        userMatric: userData?.matric || (userData as any)?.staffId || 'N/A',
-        userPhoto: (userData as any).photoUrl || (userData as any).photoURL || '',
+        userMatric: userData?.matric || userData?.staffId || 'N/A',
+        userPhoto: userData?.photoUrl || userData?.photoURL || '',
         type: exeatType,
         reason: exeatReason,
         status: 'pending',
@@ -126,8 +126,8 @@ export default function StudentCard() {
       await addDoc(collection(db, 'change_requests'), {
         userId: userData?.uid,
         userName: userData?.name || '',
-        userEmail: (userData as any)?.email || '',
-        userPhoto: (userData as any).photoUrl || (userData as any).photoURL || '',
+        userEmail: userData?.email || '',
+        userPhoto: userData?.photoUrl || userData?.photoURL || '',
         fieldToChange: changeField,
         currentValue: changeCurrentValue,
         newValue: changeNewValue,
@@ -218,8 +218,8 @@ export default function StudentCard() {
             {/* User Profile */}
             <div className="px-6 relative flex flex-col items-center">
               <div className="w-24 h-24 bg-white rounded-3xl mx-auto -mt-12 relative z-20 shadow-xl border border-slate-100 flex items-center justify-center text-slate-300 overflow-hidden group">
-                {((userData as any).photoUrl || (userData as any).photoURL) ? (
-                  <img src={((userData as any).photoUrl || (userData as any).photoURL)} alt="Passport Profile" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                {(userData.photoUrl || userData.photoURL) ? (
+                  <img src={(userData.photoUrl || userData.photoURL)} alt="Passport Profile" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                   <User className="w-10 h-10 group-hover:scale-110 transition-transform duration-300" />
                 )}
@@ -233,12 +233,12 @@ export default function StudentCard() {
                   ) : (
                     <span className="px-3 py-1 bg-slate-100 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold uppercase tracking-wider">{userData.role.replace(/_/g, ' ')}</span>
                   )}
-                  {(userData as any).level && (
-                    <span className="px-3 py-1 bg-brand-50 border border-brand-100 text-brand-700 rounded-lg text-sm font-bold">{(userData as any).level}</span>
+                  {userData.level && (
+                    <span className="px-3 py-1 bg-brand-50 border border-brand-100 text-brand-700 rounded-lg text-sm font-bold">{userData.level}</span>
                   )}
                 </div>
-                {(userData as any).department && (
-                  <p className="text-sm font-medium text-slate-500 mt-2">{(userData as any).department}</p>
+                {userData.department && (
+                  <p className="text-sm font-medium text-slate-500 mt-2">{userData.department}</p>
                 )}
               </div>
             </div>

@@ -37,7 +37,7 @@ export default function Login() {
       setCurrentImage((prev) => (prev + 1) % carouselImages.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [carouselImages.length]);
+  }, [carouselImages]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,8 +48,8 @@ export default function Login() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       showToast(`Welcome back, ${userCredential.user.email}!`, 'success');
       navigate('/');
-    } catch (err: any) {
-      setError(err.message || 'Invalid credentials');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Invalid credentials');
     } finally {
       setLoading(false);
     }
