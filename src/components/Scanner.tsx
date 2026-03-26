@@ -5,10 +5,10 @@ import {
   Upload, Camera, X, WifiOff, ImageIcon, MapPin, ChevronDown, Package
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { db, storage } from '../firebase';
+import { db } from '../firebase';
 import {
   doc, getDoc, collection, addDoc, serverTimestamp, query, orderBy,
-  onSnapshot, updateDoc, setDoc, getDocs, where, limit, Timestamp
+  onSnapshot, updateDoc, setDoc, getDocs, where
 } from 'firebase/firestore';
 import { useToast } from '../context/ToastContext';
 
