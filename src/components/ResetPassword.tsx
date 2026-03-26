@@ -17,13 +17,15 @@ export default function ResetPassword() {
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [status, setStatus] = useState<'verifying' | 'ready' | 'loading' | 'success' | 'error'>('verifying');
-  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState<'verifying' | 'ready' | 'loading' | 'success' | 'error'>(
+    (mode !== 'resetPassword' || !oobCode) ? 'error' : 'verifying'
+  );
+  const [message, setMessage] = useState(
+    (mode !== 'resetPassword' || !oobCode) ? 'This link is invalid or has expired. Please request a new password reset link.' : ''
+  );
 
   useEffect(() => {
     if (mode !== 'resetPassword' || !oobCode) {
-      setStatus('error');
-      setMessage('This link is invalid or has expired. Please request a new password reset link.');
       return;
     }
     verifyPasswordResetCode(auth, oobCode)

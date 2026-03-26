@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
@@ -42,11 +42,11 @@ export default function Register() {
   const [currentImage, setCurrentImage] = useState(0);
 
   const base = import.meta.env.BASE_URL;
-  const carouselImages = [
+  const carouselImages = useMemo(() => [
     `${base}Register-1.jpg.jpg`,
     `${base}Register-2.jpg.jpg`,
     `${base}Register-3.jpg.avif`,
-  ];
+  ], [base]);
 
   useEffect(() => {
     setMounted(true);
@@ -54,7 +54,7 @@ export default function Register() {
       setCurrentImage((prev) => (prev + 1) % carouselImages.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [carouselImages.length]);
 
   // Prevent accidental refresh while registering
   useEffect(() => {

@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     userData,
     loading,
     logout
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }), [currentUser, userData, loading]);
 
   return (

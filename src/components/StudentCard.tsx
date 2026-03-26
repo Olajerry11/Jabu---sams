@@ -61,7 +61,7 @@ export default function StudentCard() {
       }
     });
     return () => unsub();
-  }, [userData?.uid]);
+  }, [userData?.uid, showToast]);
 
   // ── 60-second QR Token Generator ─────────────────────────────────────────
   useEffect(() => {
@@ -85,7 +85,7 @@ export default function StudentCard() {
     }, 1000);
 
     return () => clearInterval(interval);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [liveStatus, userData]);
 
   // ── Exeat Submit ──────────────────────────────────────────────────────────

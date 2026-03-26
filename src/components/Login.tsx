@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
@@ -25,11 +25,11 @@ export default function Login() {
   }, [userData, navigate]);
 
   const base = import.meta.env.BASE_URL;
-  const carouselImages = [
+  const carouselImages = useMemo(() => [
     `${base}Login-1.jpg.jpg`,
     `${base}Login-2.jpg.jpg`,
     `${base}Login-3.jpg.jpg`,
-  ];
+  ], [base]);
 
   useEffect(() => {
     setMounted(true);
@@ -37,7 +37,7 @@ export default function Login() {
       setCurrentImage((prev) => (prev + 1) % carouselImages.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [carouselImages.length]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

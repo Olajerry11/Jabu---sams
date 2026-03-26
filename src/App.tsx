@@ -92,11 +92,11 @@ function NavLinks() {
 }
 
 function StartupAnimation({ onComplete }: { onComplete: () => void }) {
-  const lines = [
+  const lines = React.useMemo(() => [
     'Welcome to Joseph Ayo Babalola University,',
     'Ikeji-Arakeji, Osun State.',
     'The First Entrepreneurial University in Nigeria.',
-  ];
+  ], []);
 
   const [logoReady, setLogoReady] = useState(false);      // logo has finished rolling
   const [displayedLines, setDisplayedLines] = useState(['', '', '']);
