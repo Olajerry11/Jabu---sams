@@ -133,7 +133,7 @@ function StartupAnimation({ onComplete }: { onComplete: () => void }) {
       }, 320);
       return () => clearTimeout(t);
     }
-  }, [logoReady, currentLine, currentChar]);
+  }, [logoReady, currentLine, currentChar, lines]);
 
   // Auto-dismiss after logo roll + all typing is done
   useEffect(() => {
@@ -142,7 +142,7 @@ function StartupAnimation({ onComplete }: { onComplete: () => void }) {
     const fadeTimer = setTimeout(() => setFadeOut(true), typingMs);
     const doneTimer = setTimeout(() => onComplete(), typingMs + 600);
     return () => { clearTimeout(fadeTimer); clearTimeout(doneTimer); };
-  }, [onComplete]);
+  }, [onComplete, lines]);
 
   const lineStyles = [
     'text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight',
