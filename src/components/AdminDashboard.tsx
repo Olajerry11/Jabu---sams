@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Search, UserCheck, UserX, User, MessageSquare, Wifi, WifiOff, CheckCircle2, XCircle, Clock, AlertTriangle, X } from 'lucide-react';
-import { collection, onSnapshot, doc, updateDoc, query, orderBy, getDoc, type Timestamp } from 'firebase/firestore';
+import { Search, UserCheck, UserX, User, MessageSquare, Wifi, WifiOff, CheckCircle2, XCircle, Clock, AlertTriangle, X, Trash2 } from 'lucide-react';
+import { collection, onSnapshot, doc, updateDoc, query, orderBy, getDoc, deleteDoc, type Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -54,6 +54,8 @@ export default function AdminDashboard() {
   const [changeRequests, setChangeRequests] = useState<ChangeRequest[]>([]);
   const [securityStatuses, setSecurityStatuses] = useState<SecurityStatus[]>([]);
   const [processingReqId, setProcessingReqId] = useState<string | null>(null);
+  const [deleteConfirmUser, setDeleteConfirmUser] = useState<UserData | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
 
   // Fetch real-time users from Firestore
   useEffect(() => {
@@ -111,6 +113,25 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteUser = async (user: UserData) => {
+    if (userData?.role !== 'admin') {
+      showToast('Only Administrators can delete users.', 'error');
+      return;
+    }
+    setDeletingUserId(user.id);
+    try {
+      await deleteDoc(doc(db, 'users', user.id));
+      showToast(`${user.name || 'User'} has been permanently deleted.`, 'warning');
+      setDeleteConfirmUser(null);
+      setSelectedUser(null);
+    } catch (error) {
+      console.error('Failed to delete user', error);
+      showToast('Failed to delete user. Check Firestore rules.', 'error');
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
+
   const handleChangeRequest = async (req: ChangeRequest, action: 'approved' | 'rejected') => {
     setProcessingReqId(req.id);
     try {
@@ -118,11 +139,15 @@ export default function AdminDashboard() {
         // Map the field label to the actual Firestore field key
         const fieldMap: Record<string, string> = {
           'Full Name': 'name',
+          'Other Name': 'otherName',
           'Matric Number': 'matric',
           'Department': 'department',
+          'College/Faculty': 'collegeFaculty',
           'Level': 'level',
           'Phone Number': 'phone',
+          'Parent Phone': 'parentPhone',
           'State of Origin': 'state',
+          'Student Type': 'studentType',
         };
         const firestoreField = fieldMap[req.fieldToChange] || req.fieldToChange.toLowerCase();
         // Verify user still exists
@@ -327,18 +352,28 @@ export default function AdminDashboard() {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); toggleStatus(user.id, user.status); }}
-                            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm active:scale-95 ${
-                              user.status === 'active'
-                                ? 'bg-white text-rose-600 border border-rose-200 hover:bg-rose-50 hover:border-rose-300'
-                                : 'bg-slate-900 text-white border border-slate-900 hover:bg-brand-600 hover:border-brand-600'
-                            }`}
-                          >
-                            {user.status === 'active' ? 'Suspend Pass' : 'Activate Pass'}
-                          </button>
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); toggleStatus(user.id, user.status); }}
+                              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm active:scale-95 ${
+                                user.status === 'active'
+                                  ? 'bg-white text-rose-600 border border-rose-200 hover:bg-rose-50 hover:border-rose-300'
+                                  : 'bg-slate-900 text-white border border-slate-900 hover:bg-brand-600 hover:border-brand-600'
+                              }`}
+                            >
+                              {user.status === 'active' ? 'Suspend Pass' : 'Activate Pass'}
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setDeleteConfirmUser(user); }}
+                              title="Delete user permanently"
+                              className="p-2.5 rounded-xl text-xs font-bold bg-white text-rose-500 border border-rose-200 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 transition-all shadow-sm active:scale-95"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
+
                     ))
                   )}
                 </tbody>
@@ -578,6 +613,66 @@ export default function AdminDashboard() {
                     <p className="text-sm font-semibold text-slate-900">{(selectedUser as any).createdAt ? new Date((selectedUser as any).createdAt).toLocaleDateString() : 'N/A'}</p>
                   </div>
               </div>
+            </div>
+            {/* Delete button at bottom of detail modal */}
+            <div className="px-6 pb-6 pt-2 border-t border-slate-100 mt-2 flex justify-end">
+              <button
+                onClick={() => { setDeleteConfirmUser(selectedUser); setSelectedUser(null); }}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-all active:scale-95"
+              >
+                <Trash2 className="w-3.5 h-3.5" /> Delete This User
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== DELETE CONFIRMATION MODAL ==================== */}
+      {deleteConfirmUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setDeleteConfirmUser(null)} />
+          <div className="bg-white w-full max-w-sm rounded-3xl premium-shadow overflow-hidden relative z-10 animate-slide-up">
+            <div className="p-6 border-b border-rose-100 bg-rose-50 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-rose-100 border border-rose-200 flex items-center justify-center shrink-0">
+                <Trash2 className="w-5 h-5 text-rose-600" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-rose-900 leading-none">Delete User</h3>
+                <p className="text-xs text-rose-600 mt-0.5 font-medium">This action cannot be undone</p>
+              </div>
+            </div>
+            <div className="p-6">
+              <p className="text-sm text-slate-700 font-medium leading-relaxed">
+                Are you sure you want to <span className="font-bold text-rose-600">permanently delete</span> the account for:
+              </p>
+              <div className="mt-3 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-200 border border-slate-300 overflow-hidden flex items-center justify-center text-slate-400 shrink-0">
+                  {(deleteConfirmUser.photoUrl || deleteConfirmUser.photoURL)
+                    ? <img src={deleteConfirmUser.photoUrl || deleteConfirmUser.photoURL} alt="" className="w-full h-full object-cover" />
+                    : <User className="w-5 h-5" />}
+                </div>
+                <div>
+                  <p className="font-bold text-slate-900 text-sm">{deleteConfirmUser.name || 'Unknown User'}</p>
+                  <p className="text-xs text-slate-500 font-medium">{deleteConfirmUser.email || deleteConfirmUser.matric || 'No identifier'}</p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-400 mt-3 font-medium">⚠️ Only the Firestore record is deleted. The Firebase Auth account will remain unless deleted separately from the Firebase Console.</p>
+            </div>
+            <div className="px-6 pb-6 flex gap-3">
+              <button
+                onClick={() => setDeleteConfirmUser(null)}
+                className="flex-1 py-3 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all active:scale-95"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteUser(deleteConfirmUser)}
+                disabled={deletingUserId === deleteConfirmUser.id}
+                className="flex-1 py-3 rounded-xl text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 transition-all active:scale-95 disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                {deletingUserId === deleteConfirmUser.id ? 'Deleting...' : 'Yes, Delete'}
+              </button>
             </div>
           </div>
         </div>

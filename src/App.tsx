@@ -11,7 +11,7 @@ const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 const Login = lazy(() => import('./components/Login'));
 const Register = lazy(() => import('./components/Register'));
 const ForgotPassword = lazy(() => import('./components/ForgotPassword'));
-const HelpButton = lazy(() => import('./components/HelpButton'));
+const AIChatbot = lazy(() => import('./components/AIChatbot'));
 const ResetPassword = lazy(() => import('./components/ResetPassword'));
 
 function ProtectedRoute({ children, reqRole }: { children: React.ReactNode, reqRole?: string }) {
@@ -277,9 +277,9 @@ function App() {
             </Suspense>
           </main>
           
-          {/* Global Floating Help Button */}
+          {/* Global AI Chatbot Assistant */}
           <Suspense fallback={null}>
-            <HelpButton />
+            <AIChatbot />
           </Suspense>
 
           {/* Global Footer */}

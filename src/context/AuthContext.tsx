@@ -55,12 +55,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (docSnap.exists()) {
             setUserData({ uid: user.uid, email: user.email, ...docSnap.data() } as UserData);
           } else {
-            // Default fallback if user doc isn't created yet
-             setUserData({ uid: user.uid, email: user.email, role: 'student', status: 'active' });
+            // No Firestore record — user was deleted by admin. Sign them out immediately.
+            // They will be redirected to login and cannot access any page.
+            console.warn('No user record for UID:', user.uid, '— account has been removed. Signing out.');
+            setUserData(null);
+            await signOut(auth);
           }
         } catch (error) {
-          console.error("Error fetching user data:", error);
-          setUserData({ uid: user.uid, email: user.email, role: 'student', status: 'active' });
+          console.error('Error fetching user data:', error);
+          setUserData(null);
         }
       } else {
         setUserData(null);

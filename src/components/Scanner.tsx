@@ -462,7 +462,7 @@ export default function Scanner() {
 
               {!scanResult.status ? (
                 <div className="w-full max-w-[320px] relative z-10">
-                  <div id="reader" className="w-full rounded-[2rem] overflow-hidden shadow-2xl border-4 border-slate-800 bg-black aspect-square"></div>
+                  <div id="reader" className="w-full rounded-[2rem] shadow-2xl"></div>
                   {isScanning && (
                     <div className="text-center mt-8 animate-pulse flex flex-col items-center gap-3">
                       <div className="w-16 h-1.5 bg-brand-500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)]"></div>

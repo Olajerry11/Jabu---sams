@@ -8,11 +8,15 @@ import { useToast } from '../context/ToastContext';
 
 const CHANGE_FIELDS = [
   'Full Name',
+  'Other Name',
   'Matric Number',
   'Department',
+  'College/Faculty',
   'Level',
   'Phone Number',
+  'Parent Phone',
   'State of Origin',
+  'Student Type',
 ];
 
 export default function StudentCard() {
@@ -41,6 +45,25 @@ export default function StudentCard() {
   const [changeNewValue, setChangeNewValue] = useState('');
   const [changeReason, setChangeReason] = useState('');
   const [submittingChange, setSubmittingChange] = useState(false);
+
+  // ── Auto-fill current value when field changes ────────────────────────────
+  useEffect(() => {
+    if (!userData) return;
+    const map: Record<string, string> = {
+      'Full Name': userData.name || '',
+      'Other Name': (userData as any).otherName || '',
+      'Matric Number': userData.matric || '',
+      'Department': (userData as any).department || '',
+      'College/Faculty': (userData as any).collegeFaculty || '',
+      'Level': (userData as any).level || '',
+      'Phone Number': (userData as any).phone || '',
+      'Parent Phone': (userData as any).parentPhone || '',
+      'State of Origin': (userData as any).state || '',
+      'Student Type': (userData as any).studentType || '',
+    };
+    setChangeCurrentValue(map[changeField] ?? '');
+    setChangeNewValue('');
+  }, [changeField, userData]);
 
   // ── Real-time Status Listener ─────────────────────────────────────────────
   useEffect(() => {
@@ -92,26 +115,30 @@ export default function StudentCard() {
   const handleSubmitExeat = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!exeatReason.trim()) return;
+    if (!userData?.uid) {
+      showToast('Session error. Please log out and log back in.', 'error');
+      return;
+    }
     setSubmittingExeat(true);
     try {
       await addDoc(collection(db, 'exeat_requests'), {
-        userId: userData?.uid,
-        userName: userData?.name,
-        userRole: userData?.role,
-        userMatric: userData?.matric || userData?.staffId || 'N/A',
-        userPhoto: userData?.photoUrl || userData?.photoURL || '',
+        userId: userData.uid,
+        userName: userData.name || 'Unknown',
+        userRole: userData.role || 'student',
+        userMatric: userData.matric || (userData as any).staffId || 'N/A',
+        userPhoto: userData.photoUrl || userData.photoURL || '',
         type: exeatType,
         reason: exeatReason,
         status: 'pending',
         timestamp: serverTimestamp(),
       });
-      showToast('Request sent to Security!', 'success');
+      showToast('✅ Request sent to Security!', 'success');
       setExeatModalOpen(false);
       setExeatType('Gate Pass (Leaving Campus)');
       setExeatReason('');
     } catch (error) {
-      console.error(error);
-      showToast('Failed to send request. Try again.', 'error');
+      console.error('Exeat request error:', error);
+      showToast('Failed to send request. Check your connection and try again.', 'error');
     } finally {
       setSubmittingExeat(false);
     }

@@ -17,13 +17,14 @@ JABU SAMS is a full-stack Progressive Web App (PWA) for managing digital campus 
 | 🆔 Digital ID Pass | QR code refreshes every 60 seconds per student |
 | 👤 Role-Based Routing | Students, Staff, Security, Admin get different dashboards |
 | 🔐 Admin Dashboard | View all users, manage access, approve profile change requests |
-| 📷 Passport Photos | Uploaded at registration, compressed & stored in Firebase Storage |
+| 📷 Passport Photos | Uploaded at registration, compressed & stored in Firestore |
 | 🔍 QR Scanner | Security officers scan student passes in real time |
 | 📝 Registration | Full form with college/faculty & department dropdowns |
-| ♻️ Change Requests | Students request profile edits; admins approve/reject |
-| 🚪 Gate Pass Requests | Students alert security before leaving campus |
-| 🆘 Help Button | Floating contextual help on every page |
-| 📱 Mobile Optimised | Responsive layout, compressed images |
+| ♻️ Change Requests | Students self-request profile edits (auto-filled); admins approve/reject |
+| 🚪 Gate Pass Requests | Students alert security before leaving campus or for deliveries |
+| 🤖 AI Chatbot | Gemini 2.0 Flash-powered assistant answers JABU SAMS questions |
+| 🗑️ Delete User | Admins can permanently delete a user record with confirmation; deleted users are instantly signed out |
+| 📱 Mobile Optimised | Responsive layout, compressed images, PWA-ready |
 
 ## Roles
 
@@ -38,11 +39,13 @@ JABU SAMS is a full-stack Progressive Web App (PWA) for managing digital campus 
 
 ## Tech Stack
 
-- **Frontend**: React 18 + TypeScript + Vite
+- **Frontend**: React 19 + TypeScript + Vite 7
 - **Styling**: Tailwind CSS v4
-- **Backend**: Firebase (Auth, Firestore, Storage)
-- **Routing**: React Router v6 (HashRouter for GitHub Pages)
-- **QR Code**: `react-qr-code`
+- **Backend**: Firebase v12 (Auth, Firestore)
+- **Routing**: React Router v7 (HashRouter for GitHub Pages)
+- **QR Generation**: `react-qr-code`
+- **QR Scanner**: `html5-qrcode`
+- **AI Chatbot**: Google Gemini 2.0 Flash (`@google/generative-ai` REST API)
 - **Icons**: Lucide React
 - **Deployment**: GitHub Pages via GitHub Actions
 
@@ -57,7 +60,7 @@ Open [http://localhost:5173](http://localhost:5173)
 
 ## Environment Variables
 
-Create a `.env` file:
+Create a `.env` file in the root:
 
 ```env
 VITE_FIREBASE_API_KEY=...
@@ -66,6 +69,7 @@ VITE_FIREBASE_PROJECT_ID=...
 VITE_FIREBASE_STORAGE_BUCKET=...
 VITE_FIREBASE_MESSAGING_SENDER_ID=...
 VITE_FIREBASE_APP_ID=...
+VITE_GEMINI_API_KEY=...   # Get free key from https://aistudio.google.com/apikey
 ```
 
 ## Deployment (GitHub Pages)
