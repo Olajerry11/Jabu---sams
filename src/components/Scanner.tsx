@@ -243,28 +243,39 @@ export default function Scanner() {
   }, [userData, scanLocation, showToast, checkMainGateClearance]);
 
   // ── QR Scanner Init ───────────────────────────────────────────────────────
-  useEffect(() => {
-    let scanner: Html5QrcodeScanner | null = null;
+  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
-    if (activeTab === 'scanner' && !scanResult.status) {
-      scanner = new Html5QrcodeScanner(
-        'reader',
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        false
-      );
-      scanner.render(
-        (_decodedText: string) => {
-          scanner?.clear();
-          setIsScanning(false);
-          verifyAccess(_decodedText);
-        },
-        (_error: unknown) => { /* ignore */ }
-      );
-      setIsScanning(true);
-    }
+  useEffect(() => {
+    if (activeTab !== 'scanner' || scanResult.status) return;
+
+    // Guard against React Strict Mode double-invocation:
+    // If #reader already has children, a scanner is already mounted — skip.
+    const readerEl = document.getElementById('reader');
+    if (!readerEl || readerEl.children.length > 0) return;
+
+    const scanner = new Html5QrcodeScanner(
+      'reader',
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      false
+    );
+    scannerRef.current = scanner;
+
+    scanner.render(
+      (_decodedText: string) => {
+        scanner.clear().catch(() => {});
+        scannerRef.current = null;
+        setIsScanning(false);
+        verifyAccess(_decodedText);
+      },
+      (_error: unknown) => { /* ignore scan errors */ }
+    );
+    setIsScanning(true);
 
     return () => {
-      if (scanner) scanner.clear().catch(() => {});
+      if (scannerRef.current) {
+        scannerRef.current.clear().catch(() => {});
+        scannerRef.current = null;
+      }
     };
   }, [activeTab, scanResult.status, verifyAccess]);
 
