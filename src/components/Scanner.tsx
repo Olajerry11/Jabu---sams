@@ -244,14 +244,13 @@ export default function Scanner() {
 
   // ── QR Scanner Init ───────────────────────────────────────────────────────
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+  const scannerMounted = useRef(false);
 
   useEffect(() => {
     if (activeTab !== 'scanner' || scanResult.status) return;
-
-    // Guard against React Strict Mode double-invocation:
-    // If #reader already has children, a scanner is already mounted — skip.
-    const readerEl = document.getElementById('reader');
-    if (!readerEl || readerEl.children.length > 0) return;
+    // Synchronous guard — prevents React Strict Mode from mounting twice
+    if (scannerMounted.current) return;
+    scannerMounted.current = true;
 
     const scanner = new Html5QrcodeScanner(
       'reader',
@@ -264,6 +263,7 @@ export default function Scanner() {
       (_decodedText: string) => {
         scanner.clear().catch(() => {});
         scannerRef.current = null;
+        scannerMounted.current = false;
         setIsScanning(false);
         verifyAccess(_decodedText);
       },
@@ -272,6 +272,7 @@ export default function Scanner() {
     setIsScanning(true);
 
     return () => {
+      scannerMounted.current = false;
       if (scannerRef.current) {
         scannerRef.current.clear().catch(() => {});
         scannerRef.current = null;
