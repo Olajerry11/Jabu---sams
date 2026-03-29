@@ -97,13 +97,13 @@ export default function AIChatbot() {
           { role: 'user', parts: [{ text }] },
         ],
         generationConfig: {
-          maxOutputTokens: 300,
-          temperature: 0.7,
+          maxOutputTokens: 150,
+          temperature: 0.5,
         },
       };
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -249,7 +249,7 @@ export default function AIChatbot() {
           {/* Footer hint */}
           <div className="px-4 pb-3 pt-0 bg-white">
             <p className="text-[10px] text-slate-400 text-center flex items-center justify-center gap-1">
-              <MessageCircle className="w-3 h-3" /> Press Enter to send · Gemini 2.0 Flash
+              <MessageCircle className="w-3 h-3" /> Press Enter to send · Gemini AI
             </p>
           </div>
         </div>
