@@ -258,7 +258,7 @@ export default function StudentCard() {
                   {userData.matric ? (
                     <span className="px-3 py-1 bg-slate-100 border border-slate-200 text-slate-600 rounded-lg text-sm font-mono font-medium">{userData.matric}</span>
                   ) : (
-                    <span className="px-3 py-1 bg-slate-100 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold uppercase tracking-wider">{userData.role.replace(/_/g, ' ')}</span>
+                    <span className="px-3 py-1 bg-slate-100 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold uppercase tracking-wider">{(userData.role || 'student').replace(/_/g, ' ')}</span>
                   )}
                   {userData.level && (
                     <span className="px-3 py-1 bg-brand-50 border border-brand-100 text-brand-700 rounded-lg text-sm font-bold">{userData.level}</span>
