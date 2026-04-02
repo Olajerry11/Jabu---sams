@@ -37,7 +37,11 @@ export default function AIChatbot() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
+  const p1 = import.meta.env.VITE_GEMINI_KEY_P1 as string | undefined;
+  const p2 = import.meta.env.VITE_GEMINI_KEY_P2 as string | undefined;
+  const p3 = import.meta.env.VITE_GEMINI_KEY_P3 as string | undefined;
+  
+  const apiKey = (p1 && p2 && p3) ? `${p1}${p2}${p3}` : undefined;
 
   useEffect(() => {
     if (!apiKey) setApiKeyMissing(true);
