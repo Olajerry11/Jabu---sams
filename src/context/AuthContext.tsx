@@ -46,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setLoading(true);
       setCurrentUser(user);
       if (user) {
         // Fetch role data from users collection
